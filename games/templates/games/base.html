@@ -1,0 +1,54 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en"> <head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}DealHunter{% endblock %}
+    </title>
+
+    <link rel="stylesheet" href="{% static 'games/style.css' %}">
+
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'games:home' %}" class="logo">🎮 DealHunter</a>
+
+            <div class="search-bar">
+                <form action="" method="get">
+                    <input type="text" name="q" placeholder="Search for a game...">
+                    <button type="submit">🔍</button>
+                </form>
+            </div>
+
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <span style="color: #ccc; margin-right: 15px;">Hi, {{ user.username }}!</span>
+
+                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-auth">Logout</button>
+                    </form>
+
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-auth">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 DealHunter - Data provided by CheapShark API</p>
+    </footer>
+</body>
+
+</html>

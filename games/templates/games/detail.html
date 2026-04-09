@@ -1,0 +1,76 @@
+{% extends 'games/base.html' %}  <!--Detail View of a game-->
+
+{% block title %}{{ game.title }} - DealHunter{% endblock %}
+
+{% block content %}
+
+    <p class="back-link">
+        <a href="{% url 'games:home' %}">&larr; Return to the catalog</a>
+    </p>
+
+    <div class="game-detail-container">
+
+        <div class="game-cover">
+            <img src="{{ game.cover_url }}" alt="{{ game.title }}">
+        </div>
+
+        <div class="game-info">
+            <h1>{{ game.title }}</h1>
+
+            <div class="meta-tags">
+                <p><strong>Platforms:</strong>
+                    {% for platform in game.platforms.all %}
+                        <span class ="badge">
+                            {{ platform.name }}
+                        </span>
+                    {% empty %}
+                        <span class="badge">
+                            No specified
+                        </span>
+                    {% endfor %}
+                </p>
+                <p><strong>Genres:</strong>
+                    {% for genre in game.genres.all %}
+                        <span class="badge">
+                            {{ genre.name }}
+                        </span>
+                    {% empty %}
+                        <span class="badge">
+                            No specified
+                        </span>
+                    {% endfor %}
+                </p>
+            </div>
+
+            <h2 class="deals-title">
+                💰 Best Deals
+            </h2>
+
+            <table class="deals-table">
+                <thead>
+                    <tr>
+                        <th>Store</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for deal in game.availability_set.all %}
+                        <tr>
+                            <td><strong>{{ deal.shop.name }}</strong></td>
+                            <td class="deal-price">{{ deal.current_price }}</td>
+                            <td>
+                                <a href="{{ deal.url }}" target="_blank" class="btn-buy">Buy &rarr;</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">No deals available currently for this game.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+

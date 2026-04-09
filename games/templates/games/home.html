@@ -1,0 +1,85 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Home - DealHunter{% endblock %}
+
+{% block content %}
+
+<div class="main-layout">
+
+    <aside class="sidebar">
+        <div class="filter-box">
+            <h3>Categories</h3>
+            <ul>
+                <li><a href="#">All the ganes</a></li>
+                <li><a href="#">RPG</a></li>
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Adventure</a></li>
+            </ul>
+        </div>
+
+        <div class="filter-box">
+            <h3>Platforms</h3>
+            <ul>
+                <li><a href="#">PC (Steam)</a></li>
+                <li><a href="#">PlayStation</a></li>
+                <li><a href="#">Xbox</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <section class="content-area">
+        <div class="hero-header">
+            <h1>🔥 Special Offers</h1>
+            <p>Find the best prices for your favorite video games.</p>
+        </div>
+
+        <div class="grid">
+            {% for game in games %}
+
+                <a href="{% url 'games:detail' game.pk %}">
+
+                    <div class="card">
+                        <div class="card-image">
+                            <img src="{{ game.cover_url }}" alt="{{ game.title }}">
+                            {% with deal=game.availability_set.first %}
+                                {% if deal %}
+                                    <span class="price-tag">{{ deal.current_price }} €</span>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+
+                        <div class="card-info">
+                            <h3>{{ game.title }}</h3>
+                            <div class="card-meta">
+                                {% for platform in game.platforms.all|slice:":2" %}
+                                    <span class="badge">{{ platform.name }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                </a>
+
+            {% endfor %}
+        </div>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="btn-page">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn-page">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn-page">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn-page">Last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </section>
+</div>
+{% endblock %}
