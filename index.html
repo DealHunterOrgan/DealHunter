@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Por qué es obligatorio el index.html</title>
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --panel: #fffaf3;
+      --text: #1f2933;
+      --accent: #b45309;
+      --border: #e5d3b3;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top left, #fde68a 0, transparent 30%),
+        linear-gradient(180deg, var(--bg), #efe2cf);
+      color: var(--text);
+    }
+      main {
+      width: min(760px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 40px 32px;
+      box-shadow: 0 18px 40px rgba(31, 41, 51, 0.12);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+    }
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin: 0 0 18px;
+    }
+
+    .highlight {
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>¿Por qué es obligatorio el <span class="highlight">index.html</span>?</h1>
+    <p>
+      Como indica el propio error: <span class="highlight">"For root URLs you must provide an index.html file"</span>.
+    </p>
+    <p>
+      Es el estándar de internet: cuando visitas la raíz de un sitio web, el servidor busca automáticamente un archivo llamado
+      <span class="highlight">index.html</span> para mostrar el contenido inicial.
+    </p>
+    <p>
+      Sin ese archivo, el navegador intentaría listar los archivos de la carpeta, pero GitHub bloquea esa vista por seguridad,
+      lo que termina mostrando un error <span class="highlight">404</span>.
+    </p>
+  </main>
+</body>
+</html>
