@@ -1,0 +1,32 @@
+{% extends 'games/base.html' %}
+
+{% block title %}Mi Perfil - DealHunter{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <h2>Mi Perfil</h2>
+        <p>Gestiona la información de tu cuenta.</p>
+
+        <div style="background: #2a2a2a; padding: 20px; border-radius: 8px; text-align: left; margin-bottom: 20px;">
+            <p><strong>Usuario:</strong> {{ user.username }}</p>
+            <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+        </div>
+
+        <div class="profile-actions" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Enlace para cambiar contraseña (ya incluido en django.contrib.auth.urls) -->
+            <a href="{% url 'password_change' %}" class="btn-page" style="text-align: center; background: #444;">
+                Cambiar Contraseña
+            </a>
+
+            <!-- Botón para borrar cuenta -->
+            <a href="{% url 'games:delete_account' %}" class="btn-submit" style="text-align: center; background-color: #dc3545; text-decoration: none;">
+                Borrar mi cuenta definitivamente
+            </a>
+        </div>
+
+        <br>
+        <a href="{% url 'games:home' %}" style="color: #ccc; text-decoration: none;">&larr; Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}
