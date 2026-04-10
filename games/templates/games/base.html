@@ -1,17 +1,16 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DealHunter{% endblock %}</title>
 
-    <!-- Importamos Bootstrap para que funcionen las clases de diseño -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'games/style.css' %}">
 
     <style>
-        /* Estilos personalizados para replicar exactamente la imagen */
+        /* Estilos Buscador Estilo Píldora */
         .custom-search-container {
             background-color: white;
             border-radius: 50px;
@@ -20,8 +19,6 @@
             align-items: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
         }
 
         .custom-search-input {
@@ -50,55 +47,55 @@
             color: #6c757d;
             margin-right: 5px;
         }
+
+        /* Navbar Ajustes */
+        .navbar {
+            background-color: #1a1a1a; /* O el color oscuro de tu tema */
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
     </style>
 </head>
 
 <body>
-    <nav class="navbar py-3">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
-            <a href="{% url 'games:home' %}" class="logo text-decoration-none" style="font-size: 1.5rem;">🎮 DealHunter</a>
+    <nav class="navbar mb-4">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a href="{% url 'games:home' %}" class="logo">🎮 DealHunter</a>
 
-            <!-- BUSCADOR ACTUALIZADO (Estilo de la imagen) -->
             <div style="flex-grow: 1; max-width: 500px; margin: 0 20px;">
                 <form action="{% url 'games:home' %}" method="get">
                     <div class="custom-search-container">
                         <span class="search-icon">🔍</span>
-                        <input
-                            type="text"
-                            name="q"
-                            class="custom-search-input"
-                            placeholder="Search anything..."
-                            value="{{ search_query }}"
-                        >
+                        <input type="text" name="q" class="custom-search-input" placeholder="Search anything..." value="{{ search_query }}">
                         <button type="submit" class="custom-search-button">Search</button>
                     </div>
                 </form>
             </div>
 
-            <div class="nav-links d-flex align-items-center">
+            <div class="nav-links">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'games:profile' %}" class="btn btn-outline-light rounded-pill me-2">Perfil</a>
-                    <form action="{% url 'logout' %}" method="post" class="m-0">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-light rounded-pill">Logout</button>
-                    </form>
+                    <a href="{% url 'games:profile' %}" class="btn btn-light rounded-pill px-4 fw-bold">Mi Perfil</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-light rounded-pill px-4">Login</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light rounded-pill px-4">Login</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
-    <main class="container mt-4">
-        {% block content %}
-        {% endblock %}
+    <main class="container">
+        {% block content %}{% endblock %}
     </main>
 
-    <footer class="text-center py-4 mt-5 border-top">
+    <footer class="text-center py-4 mt-5 border-top text-muted">
         <p>&copy; 2026 DealHunter - Data provided by CheapShark API</p>
     </footer>
 
-    <!-- JS de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

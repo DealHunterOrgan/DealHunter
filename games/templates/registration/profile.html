@@ -1,32 +1,88 @@
 {% extends 'games/base.html' %}
 
-{% block title %}Mi Perfil - DealHunter{% endblock %}
+{% block title %}Perfil - {{ user.username }}{% endblock %}
 
 {% block content %}
-<div class="auth-wrapper">
-    <div class="auth-container">
-        <h2>Mi Perfil</h2>
-        <p>Gestiona la información de tu cuenta.</p>
-
-        <div style="background: #2a2a2a; padding: 20px; border-radius: 8px; text-align: left; margin-bottom: 20px;">
-            <p><strong>Usuario:</strong> {{ user.username }}</p>
-            <p><strong>Correo electrónico:</strong> {{ user.email }}</p>
+<div class="container-fluid p-0" style="margin-top: -24px;">
+    <div class="profile-header py-5 mb-4 shadow" style="background: linear-gradient(135deg, #8e2de2, #4a00e0); color: white; border-radius: 0 0 20px 20px;">
+        <div class="container d-flex align-items-center">
+            <div class="profile-avatar me-4">
+                <div class="rounded-circle bg-white d-flex align-items-center justify-content-center" style="width: 110px; height: 110px; border: 5px solid rgba(255,255,255,0.2);">
+                    <span style="font-size: 3rem;">👤</span>
+                </div>
+            </div>
+            <div>
+                <h1 class="display-6 fw-bold mb-0">{{ user.username }}</h1>
+                <p class="mb-1 opacity-75">{{ user.email }}</p>
+                <span class="badge rounded-pill bg-white text-primary fw-bold">Usuario Verificado</span>
+            </div>
         </div>
+    </div>
 
-        <div class="profile-actions" style="display: flex; flex-direction: column; gap: 10px;">
-            <!-- Enlace para cambiar contraseña (ya incluido en django.contrib.auth.urls) -->
-            <a href="{% url 'password_change' %}" class="btn-page" style="text-align: center; background: #444;">
-                Cambiar Contraseña
-            </a>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Informació de la cuenta</h5>
+                        <div class="row text-center mb-4">
+                            <div class="col-6 border-end">
+                                <small class="text-muted d-block">Miembro desde</small>
+                                <span class="fw-bold">{{ user.date_joined|date:"M Y" }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">ID Usuario</small>
+                                <span class="fw-bold">#{{ user.id }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Nombre de usuario</span>
+                                <span class="fw-bold">{{ user.username }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Correo electrónico</span>
+                                <span class="fw-bold">{{ user.email }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Botón para borrar cuenta -->
-            <a href="{% url 'games:delete_account' %}" class="btn-submit" style="text-align: center; background-color: #dc3545; text-decoration: none;">
-                Borrar mi cuenta definitivamente
-            </a>
+            <div class="col-md-5">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Gestió i Seguretat</h5>
+
+                        <a href="{% url 'password_change' %}" class="btn w-100 text-start mb-3 p-3 rounded-3 d-flex align-items-center justify-content-between" style="background-color: #f8f9fa; border: 1px solid #eee; text-decoration: none; color: inherit;">
+                            <span>🔑 Canviar contrasenya</span>
+                            <span class="text-muted">→</span>
+                        </a>
+
+                        <a href="{% url 'games:delete_account' %}" class="btn w-100 text-start mb-4 p-3 rounded-3 d-flex align-items-center justify-content-between" style="background-color: #fff5f5; border: 1px solid #ffe3e3; text-decoration: none; color: #dc3545;">
+                            <span>🗑️ Esborrar compte</span>
+                            <span>→</span>
+                        </a>
+
+                        <hr>
+
+                        <form action="{% url 'logout' %}" method="post" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-100 py-3 rounded-3 fw-bold shadow-sm">
+                                Tancar Sessió (Logout)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <br>
-        <a href="{% url 'games:home' %}" style="color: #ccc; text-decoration: none;">&larr; Volver al inicio</a>
     </div>
 </div>
+
+<style>
+    .rounded-4 { border-radius: 1.2rem !important; }
+    .card { background-color: #ffffff; }
+    .btn-danger { background-color: #ff4757; border: none; }
+    .btn-danger:hover { background-color: #e84118; }
+</style>
 {% endblock %}
