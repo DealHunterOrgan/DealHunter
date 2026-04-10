@@ -210,3 +210,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# Django i entorn local
+staticfiles/
+db.sqlite3
+.env
+dhunter/
+__pycache__/
