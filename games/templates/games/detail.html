@@ -78,7 +78,13 @@
                             <td><strong>{{ deal.shop.name }}</strong></td>
                             <td class="deal-price">{{ deal.current_price }}</td>
                             <td>
-                                <a href="{{ deal.url }}" target="_blank" class="btn-buy">Buy &rarr;</a>
+                                {% if user.is_authenticated %}
+                                    <a href="{{ deal.url }}" target="_blank" class="btn-buy">Buy &rarr;</a>
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn-buy" style="background-color: #6c757d; font-size: 0.8rem;">
+                                        Login to buy
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% empty %}
