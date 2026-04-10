@@ -1,6 +1,4 @@
-{% extends 'games/base.html' %}  <!--Detail View of a game-->
-
-{% block title %}{{ game.title }} - DealHunter{% endblock %}
+{% extends 'games/base.html' %}  {% block title %}{{ game.title }} - DealHunter{% endblock %}
 
 {% block content %}
 
@@ -42,6 +40,26 @@
                 </p>
             </div>
 
+            <div class="wishlist-action" style="margin-top: 15px; margin-bottom: 25px;">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'games:toggle_wishlist' game.id %}" method="post">
+                        {% csrf_token %}
+                        {% if is_wishlisted %}
+                            <button type="submit" class="btn" style="background-color: #ff4d4d; color: white; padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold;">
+                                💔 Remove from wishlist
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn" style="background-color: #28a745; color: white; padding: 10px 15px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold;">
+                                ❤️ Add to wishlist
+                            </button>
+                        {% endif %}
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn" style="background-color: #666; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; display: inline-block; font-weight: bold;">
+                        🔒 Login to add in wishlist
+                    </a>
+                {% endif %}
+            </div>
             <h2 class="deals-title">
                 💰 Best Deals
             </h2>
@@ -73,4 +91,3 @@
         </div>
     </div>
 {% endblock %}
-

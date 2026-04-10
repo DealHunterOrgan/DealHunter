@@ -47,7 +47,26 @@
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">❤️ My wishlist</h5>
+                        <div class="list-group list-group-flush">
+                            {% for item in user.wishlist_set.all %}
+                                <a href="{% url 'games:detail' item.game.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-bottom">
+                                    <span class="fw-bold text-dark">{{ item.game.title }}</span>
+                                    <span class="text-primary small">Veure oferta &rarr;</span>
+                                </a>
+                            {% empty %}
+                                <div class="text-center py-4">
+                                    <p class="text-muted mb-2">Encara no has guardat cap joc a la teva llista.</p>
+                                    <a href="{% url 'games:home' %}" class="btn btn-sm btn-outline-primary rounded-pill">Explorar jocs</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                </div>
 
             <div class="col-md-5">
                 <div class="card border-0 shadow-sm rounded-4">
@@ -84,5 +103,6 @@
     .card { background-color: #ffffff; }
     .btn-danger { background-color: #ff4757; border: none; }
     .btn-danger:hover { background-color: #e84118; }
+    .list-group-item-action:hover { background-color: #f8f9fa; cursor: pointer; }
 </style>
 {% endblock %}

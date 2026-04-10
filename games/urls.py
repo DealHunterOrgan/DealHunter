@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-
 app_name = 'games'
 
 urlpatterns = [
@@ -11,4 +10,7 @@ urlpatterns = [
     # Nuevas rutas de Perfil
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('profile/delete/', views.DeleteAccountView.as_view(), name='delete_account'),
+
+    #
+    path('game/<int:pk>/wishlist/', views.ToggleWishlistView.as_view(), name='toggle_wishlist'),
 ]
