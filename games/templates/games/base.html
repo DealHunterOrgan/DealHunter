@@ -19,8 +19,13 @@
             <a href="{% url 'games:home' %}" class="logo">🎮 DealHunter</a>
 
             <div class="search-bar">
-                <form action="" method="get">
-                    <input type="text" name="q" placeholder="Search for a game...">
+                <form action="{% url 'games:home' %}" method="get">
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Search for a game..."
+                        value="{{ search_query }}"
+                    >
                     <button type="submit">🔍</button>
                 </form>
             </div>

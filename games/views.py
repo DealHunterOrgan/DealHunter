@@ -1,18 +1,32 @@
-from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from .models import Game
-
-# Create your views here.
-
-'''def home(request):  # Home page of the web
-    games = Game.objects.all()
-
-    return render(request, 'games/home.html', {'games': games})'''
 
 class GameListView(ListView):
     model = Game
     template_name = 'games/home.html'
     context_object_name = 'games'
+
+    def get_queryset(self):
+        queryset = (
+            Game.objects.all()
+            .prefetch_related('platforms', 'availability_set')
+            .order_by('title')
+        )
+        query = self.request.GET.get('q', '').strip()
+
+        if query:
+            queryset = queryset.filter(title__icontains=query)
+
+        return queryset
+
+    def get_paginate_by(self, queryset):
+        query = self.request.GET.get('q', '').strip()
+        return 12 if query else None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('q', '').strip()
+        return context
 
 class GameDetailView(DetailView):
     model = Game

@@ -29,8 +29,13 @@
 
     <section class="content-area">
         <div class="hero-header">
-            <h1>🔥 Special Offers</h1>
-            <p>Find the best prices for your favorite video games.</p>
+            {% if search_query %}
+                <h1>🔎 Search Results</h1>
+                <p>Showing matches for "{{ search_query }}".</p>
+            {% else %}
+                <h1>🔥 Special Offers</h1>
+                <p>Find the best prices for your favorite video games.</p>
+            {% endif %}
         </div>
 
         <div class="grid">
@@ -63,23 +68,31 @@
             {% endfor %}
         </div>
 
-        <div class="pagination">
-            <span class="step-links">
-                {% if page_obj.has_previous %}
-                    <a href="?page=1" class="btn-page">&laquo; First</a>
-                    <a href="?page={{ page_obj.previous_page_number }}" class="btn-page">Previous</a>
-                {% endif %}
+        {% if not games %}
+            <div class="pagination">
+                <span class="current">No games found for "{{ search_query }}".</span>
+            </div>
+        {% endif %}
 
-                <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        {% if is_paginated %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?q={{ search_query }}&page=1" class="btn-page">&laquo; First</a>
+                        <a href="?q={{ search_query }}&page={{ page_obj.previous_page_number }}" class="btn-page">Previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?q={{ search_query }}&page={{ page_obj.next_page_number }}" class="btn-page">Next</a>
+                        <a href="?q={{ search_query }}&page={{ page_obj.paginator.num_pages }}" class="btn-page">Last &raquo;</a>
+                    {% endif %}
                 </span>
-
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="btn-page">Next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn-page">Last &raquo;</a>
-                {% endif %}
-            </span>
-        </div>
+            </div>
+        {% endif %}
     </section>
 </div>
 {% endblock %}
