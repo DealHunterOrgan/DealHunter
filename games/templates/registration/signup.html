@@ -1,15 +1,16 @@
 {% extends 'games/base.html' %}
 
-{% block title %}Login - DealHunter{% endblock %}
+{% block title %}Create Account - DealHunter{% endblock %}
 
 {% block content %}
 <div class="auth-wrapper">
     <div class="auth-container">
-        <h2>Welcome Back</h2>
-        <p>Sign in to continue to DealHunter</p>
+        <h2>Create Account</h2>
+        <p>Create your DealHunter profile to save and explore deals.</p>
 
         <form method="post" class="auth-form">
             {% csrf_token %}
+
             {% if form.non_field_errors %}
                 <div class="form-errors">
                     {{ form.non_field_errors }}
@@ -20,15 +21,17 @@
                 <p>
                     {{ field.label_tag }}
                     {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-help">{{ field.help_text|safe }}</small>
+                    {% endif %}
                     {% if field.errors %}
                         <span class="field-error">{{ field.errors|striptags }}</span>
                     {% endif %}
                 </p>
             {% endfor %}
-            <button type="submit" class="btn-submit">Log In</button>
-        </form>
 
-        <a href="{% url 'games:signup' %}" class="auth-link-secondary">Create Account</a>
+            <button type="submit" class="btn-submit">Save</button>
+        </form>
     </div>
 </div>
 {% endblock %}

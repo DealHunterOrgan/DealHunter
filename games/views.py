@@ -1,4 +1,9 @@
-from django.views.generic import ListView, DetailView
+from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
+from django.shortcuts import redirect
+from django.views.generic import ListView, DetailView, CreateView
+
+from .forms import CustomUserCreationForm
 from .models import Game
 
 class GameListView(ListView):
@@ -32,3 +37,27 @@ class GameDetailView(DetailView):
     model = Game
     template_name = 'games/detail.html'
     context_object_name = 'game'
+
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = ""
+        return context
+
+
+class SignUpView(CreateView):
+    form_class = CustomUserCreationForm
+    template_name = 'registration/signup.html'
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('games:home')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = ""
+        return context
