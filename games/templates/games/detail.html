@@ -23,7 +23,7 @@
 
         <div class="buy-card" style="background:#f8f9fa; padding:20px; border-radius:15px; border: 1px solid #eee;">
             {% if user.is_authenticated %}
-                <p style="font-weight:bold; margin-bottom:12px;">Ofertas disponibles:</p>
+                <p style="font-weight:bold; margin-bottom:12px;">Available deals:</p>
                 {% for deal in game.availability_set.all %}
                     <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:15px; border-radius:10px; margin-bottom:10px; border: 1px solid #eee;">
 
@@ -47,17 +47,17 @@
                         </a>
                     </div>
                 {% empty %}
-                    <p style="color:#999;">No hay ofertas disponibles ahora mismo.</p>
+                    <p style="color:#999;">No deals available right now</p>
                 {% endfor %}
 
                 <form action="{% url 'games:toggle_wishlist' game.pk %}" method="POST" style="margin-top:10px;">
                     {% csrf_token %}
                     <button type="submit" style="width:100%; padding:10px; border-radius:10px; border: 1px solid #8e2de2; color:#8e2de2; background:none; cursor:pointer;">
-                        {% if is_wishlisted %}❤️ Quitar de la Wishlist{% else %}🤍 Añadir a la Wishlist{% endif %}
+                        {% if is_wishlisted %}❤️ Remove from Wishlist{% else %}🤍 Add to Wishlist{% endif %}
                     </button>
                 </form>
             {% else %}
-                <a href="{% url 'games:login' %}" style="display:block; text-align:center; background:#8e2de2; color:white; padding:15px; border-radius:10px; text-decoration:none;">Identifícate para comprar</a>
+                <a href="{% url 'games:login' %}" style="display:block; text-align:center; background:#8e2de2; color:white; padding:15px; border-radius:10px; text-decoration:none;">Log in to buy</a>
             {% endif %}
         </div>
     </div>

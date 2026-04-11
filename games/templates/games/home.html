@@ -60,14 +60,14 @@
         <!-- Géneros (desplegable) -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'genres-body')">
-                Categorías <span class="arrow">▼</span>
+                Categories <span class="arrow">▼</span>
             </button>
             <div class="filter-body" id="genres-body">
                 <ul>
                     <li>
                         <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if current_platform %}platform={{ current_platform }}&{% endif %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
                            {% if not current_genre %}class="active"{% endif %}>
-                            Todos
+                            All
                         </a>
                     </li>
                     {% for genre in all_genres %}
@@ -82,10 +82,10 @@
             </div>
         </div>
 
-        <!-- Plataformas (desplegable) -->
+        <!-- Platforms (collapsible) -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'platforms-body')">
-                Plataformas <span class="arrow">▼</span>
+                Platforms <span class="arrow">▼</span>
             </button>
             <div class="filter-body" id="platforms-body">
                 <form method="GET" action="{% url 'games:home' %}">
@@ -99,7 +99,7 @@
                                 <input type="radio" name="platform" value=""
                                     {% if not current_platform %}checked{% endif %}
                                     onchange="this.form.submit()">
-                                Todas
+                                All
                             </label>
                         </li>
                         {% for platform in all_platforms %}
@@ -117,10 +117,10 @@
             </div>
         </div>
 
-        <!-- Precio (desplegable) -->
+        <!-- Price (collapsible) -->
         <div class="filter-section">
             <button class="filter-toggle" onclick="toggleFilter(this, 'price-body')">
-                Precio <span class="arrow">▼</span>
+                Price <span class="arrow">▼</span>
             </button>
             <div class="filter-body" id="price-body" style="display:none;">
                 <form method="GET" action="{% url 'games:home' %}">
@@ -128,7 +128,7 @@
                     {% if current_genre %}<input type="hidden" name="genre" value="{{ current_genre }}">{% endif %}
                     {% if current_platform %}<input type="hidden" name="platform" value="{{ current_platform }}">{% endif %}
 
-                    <div style="font-size:0.8rem; color:#888; margin-bottom:4px;">Rango de precio (€)</div>
+                    <div style="font-size:0.8rem; color:#888; margin-bottom:4px;">Price range (€)</div>
                     <div class="price-range-inputs">
                         <input type="number" name="price_min" placeholder="0"
                                value="{{ price_min }}" min="0" max="999" step="0.5">
@@ -136,11 +136,11 @@
                         <input type="number" name="price_max" placeholder="100"
                                value="{{ price_max }}" min="0" max="999" step="0.5">
                     </div>
-                    <button type="submit" class="price-apply-btn">Aplicar</button>
+                    <button type="submit" class="price-apply-btn">Apply</button>
                     {% if price_min or price_max %}
                         <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if current_genre %}genre={{ current_genre }}&{% endif %}{% if current_platform %}platform={{ current_platform }}{% endif %}"
                            style="display:block; margin-top:5px; font-size:0.8rem; color:#888; text-align:center;">
-                            ✕ Quitar filtro precio
+                            ✕ Remove price filter
                         </a>
                     {% endif %}
                 </form>
@@ -159,12 +159,12 @@
             {% if price_min %}<input type="hidden" name="price_min" value="{{ price_min }}">{% endif %}
             {% if price_max %}<input type="hidden" name="price_max" value="{{ price_max }}">{% endif %}
             <input type="text" name="q" value="{{ search_query }}"
-                placeholder="Buscar juego..."
+                placeholder="Search game..."
                 style="flex:1; padding:11px 16px; border-radius:12px; border:1px solid #333;
                        background:#1a1a1a; color:#eee; font-size:1rem;">
             <button type="submit" style="padding:11px 22px; border-radius:12px;
                 background:#8e2de2; color:white; border:none; cursor:pointer; font-size:1rem;">
-                🔍 Buscar
+                🔍 Search
             </button>
             {% if search_query %}
                 <a href="?{% if current_genre %}genre={{ current_genre }}&{% endif %}{% if current_platform %}platform={{ current_platform }}&{% endif %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
@@ -173,10 +173,10 @@
             {% endif %}
         </form>
 
-        <!-- Info filtros activos -->
+        <!-- Active filters info -->
         {% if search_query or current_genre or current_platform or price_min or price_max %}
         <div style="margin-bottom:15px; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-            <span style="color:#888; font-size:0.85rem;">Filtros activos:</span>
+            <span style="color:#888; font-size:0.85rem;">Active filters:</span>
             {% if search_query %}
                 <span style="background:rgba(142,45,226,0.15); color:#8e2de2; padding:3px 10px; border-radius:20px; font-size:0.82rem;">
                     🔍 "{{ search_query }}"
@@ -197,7 +197,7 @@
                     💰 {{ price_min|default:"0" }}€ — {{ price_max|default:"∞" }}€
                 </span>
             {% endif %}
-            <a href="{% url 'games:home' %}" style="font-size:0.82rem; color:#888; margin-left:4px;">Limpiar todo</a>
+            <a href="{% url 'games:home' %}" style="font-size:0.82rem; color:#888; margin-left:4px;">Clear all</a>
         </div>
         {% endif %}
 
@@ -218,7 +218,7 @@
                                     {% if price %}
                                         {{ price.current_price }}€
                                     {% else %}
-                                        <span style="color:#999; font-size:0.9rem;">Sin precio</span>
+                                        <span style="color:#999; font-size:0.9rem;">No price</span>
                                     {% endif %}
                                 {% endwith %}
                             </div>
@@ -226,7 +226,7 @@
                     </div>
                 </a>
             {% empty %}
-                <p style="color:#999; grid-column:1/-1;">No se han encontrado juegos.</p>
+                <p style="color:#999; grid-column:1/-1;">No games found.</p>
             {% endfor %}
         </div>
 
