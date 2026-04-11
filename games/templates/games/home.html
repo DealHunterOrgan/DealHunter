@@ -1,40 +1,205 @@
 {% extends 'games/base.html' %}
 
 {% block content %}
+
+{# Ocultar el buscador global del navbar SOLO en esta página #}
+<style>
+    #navbar-search { display: none !important; }
+
+    /* Sidebar filtros */
+    .filter-section { border-bottom: 1px solid #2a2a2a; padding: 14px 0; }
+    .filter-toggle {
+        width: 100%; background: none; border: none; color: #ccc;
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 0.95rem; font-weight: 600; cursor: pointer; padding: 0;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .filter-toggle:hover { color: #8e2de2; }
+    .filter-toggle .arrow { transition: transform 0.2s; font-size: 0.75rem; }
+    .filter-toggle.open .arrow { transform: rotate(180deg); }
+    .filter-body { margin-top: 10px; }
+    .filter-body ul { list-style: none; padding: 0; margin: 0; max-height: 220px; overflow-y: auto; }
+    .filter-body ul li a {
+        display: block; padding: 5px 8px; border-radius: 6px;
+        color: #bbb; text-decoration: none; font-size: 0.88rem;
+    }
+    .filter-body ul li a:hover, .filter-body ul li a.active {
+        background: rgba(142,45,226,0.15); color: #8e2de2; font-weight: 600;
+    }
+
+    /* Price range */
+    .price-range-inputs { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+    .price-range-inputs input {
+        width: 60px; padding: 5px 8px; border-radius: 8px;
+        border: 1px solid #333; background: #1a1a1a; color: #eee;
+        font-size: 0.85rem; text-align: center;
+    }
+    .price-range-inputs span { color: #777; }
+    .price-apply-btn {
+        margin-top: 8px; width: 100%; padding: 7px; border-radius: 8px;
+        background: #8e2de2; color: white; border: none; cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .price-apply-btn:hover { background: #7b25c5; }
+
+    /* Plataforma checkboxes */
+    .platform-label {
+        display: flex; align-items: center; gap: 8px;
+        color: #bbb; font-size: 0.88rem; cursor: pointer;
+        padding: 4px 8px; border-radius: 6px;
+    }
+    .platform-label:hover { background: rgba(142,45,226,0.1); color: #8e2de2; }
+    .platform-label input[type=radio] { accent-color: #8e2de2; }
+</style>
+
 <div class="main-layout">
+
+    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
-        <div class="filter-box">
-            <h3>Categories</h3>
-            <ul>
-                <li><a href="{% url 'games:home' %}" {% if not current_genre %}style="font-weight:bold;color:#8e2de2;"{% endif %}>All the games</a></li>
-                {% for genre in all_genres %}
-                <li><a href="?genre={{ genre.name }}{% if search_query %}&q={{ search_query }}{% endif %}" {% if current_genre == genre.name %}style="font-weight:bold;color:#8e2de2;"{% endif %}>{{ genre.name }}</a></li>
-                {% endfor %}
-            </ul>
+
+        <!-- Géneros (desplegable) -->
+        <div class="filter-section">
+            <button class="filter-toggle open" onclick="toggleFilter(this, 'genres-body')">
+                Categorías <span class="arrow">▼</span>
+            </button>
+            <div class="filter-body" id="genres-body">
+                <ul>
+                    <li>
+                        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if current_platform %}platform={{ current_platform }}&{% endif %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
+                           {% if not current_genre %}class="active"{% endif %}>
+                            Todos
+                        </a>
+                    </li>
+                    {% for genre in all_genres %}
+                    <li>
+                        <a href="?genre={{ genre.name }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_platform %}&platform={{ current_platform }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}"
+                           {% if current_genre == genre.name %}class="active"{% endif %}>
+                            {{ genre.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
+
+        <!-- Plataformas (desplegable) -->
+        <div class="filter-section">
+            <button class="filter-toggle open" onclick="toggleFilter(this, 'platforms-body')">
+                Plataformas <span class="arrow">▼</span>
+            </button>
+            <div class="filter-body" id="platforms-body">
+                <form method="GET" action="{% url 'games:home' %}">
+                    {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                    {% if current_genre %}<input type="hidden" name="genre" value="{{ current_genre }}">{% endif %}
+                    {% if price_min %}<input type="hidden" name="price_min" value="{{ price_min }}">{% endif %}
+                    {% if price_max %}<input type="hidden" name="price_max" value="{{ price_max }}">{% endif %}
+                    <ul style="max-height:none;">
+                        <li>
+                            <label class="platform-label">
+                                <input type="radio" name="platform" value=""
+                                    {% if not current_platform %}checked{% endif %}
+                                    onchange="this.form.submit()">
+                                Todas
+                            </label>
+                        </li>
+                        {% for platform in all_platforms %}
+                        <li>
+                            <label class="platform-label">
+                                <input type="radio" name="platform" value="{{ platform.name }}"
+                                    {% if current_platform == platform.name %}checked{% endif %}
+                                    onchange="this.form.submit()">
+                                {{ platform.name }}
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+            </div>
+        </div>
+
+        <!-- Precio (desplegable) -->
+        <div class="filter-section">
+            <button class="filter-toggle" onclick="toggleFilter(this, 'price-body')">
+                Precio <span class="arrow">▼</span>
+            </button>
+            <div class="filter-body" id="price-body" style="display:none;">
+                <form method="GET" action="{% url 'games:home' %}">
+                    {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                    {% if current_genre %}<input type="hidden" name="genre" value="{{ current_genre }}">{% endif %}
+                    {% if current_platform %}<input type="hidden" name="platform" value="{{ current_platform }}">{% endif %}
+
+                    <div style="font-size:0.8rem; color:#888; margin-bottom:4px;">Rango de precio (€)</div>
+                    <div class="price-range-inputs">
+                        <input type="number" name="price_min" placeholder="0"
+                               value="{{ price_min }}" min="0" max="999" step="0.5">
+                        <span>—</span>
+                        <input type="number" name="price_max" placeholder="100"
+                               value="{{ price_max }}" min="0" max="999" step="0.5">
+                    </div>
+                    <button type="submit" class="price-apply-btn">Aplicar</button>
+                    {% if price_min or price_max %}
+                        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if current_genre %}genre={{ current_genre }}&{% endif %}{% if current_platform %}platform={{ current_platform }}{% endif %}"
+                           style="display:block; margin-top:5px; font-size:0.8rem; color:#888; text-align:center;">
+                            ✕ Quitar filtro precio
+                        </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
     </aside>
 
+    <!-- ===== GRID DE JUEGOS ===== -->
     <section class="content-area">
 
-        <!-- BARRA DE BÚSQUEDA -->
-        <form method="GET" action="{% url 'games:home' %}" style="margin-bottom:20px; display:flex; gap:10px;">
-            {% if current_genre %}
-                <input type="hidden" name="genre" value="{{ current_genre }}">
-            {% endif %}
-            <input
-                type="text"
-                name="q"
-                value="{{ search_query }}"
+        <!-- BARRA DE BÚSQUEDA ARRIBA -->
+        <form method="GET" action="{% url 'games:home' %}" style="margin-bottom:20px; display:flex; gap:8px;">
+            {% if current_genre %}<input type="hidden" name="genre" value="{{ current_genre }}">{% endif %}
+            {% if current_platform %}<input type="hidden" name="platform" value="{{ current_platform }}">{% endif %}
+            {% if price_min %}<input type="hidden" name="price_min" value="{{ price_min }}">{% endif %}
+            {% if price_max %}<input type="hidden" name="price_max" value="{{ price_max }}">{% endif %}
+            <input type="text" name="q" value="{{ search_query }}"
                 placeholder="Buscar juego..."
-                style="flex:1; padding:10px 15px; border-radius:10px; border:1px solid #ddd; font-size:1rem;"
-            >
-            <button type="submit" style="padding:10px 20px; border-radius:10px; background:#8e2de2; color:white; border:none; cursor:pointer; font-size:1rem;">
-                Buscar
+                style="flex:1; padding:11px 16px; border-radius:12px; border:1px solid #333;
+                       background:#1a1a1a; color:#eee; font-size:1rem;">
+            <button type="submit" style="padding:11px 22px; border-radius:12px;
+                background:#8e2de2; color:white; border:none; cursor:pointer; font-size:1rem;">
+                🔍 Buscar
             </button>
             {% if search_query %}
-                <a href="?{% if current_genre %}genre={{ current_genre }}{% endif %}" style="padding:10px 15px; border-radius:10px; border:1px solid #ddd; color:#555; text-decoration:none;">✕</a>
+                <a href="?{% if current_genre %}genre={{ current_genre }}&{% endif %}{% if current_platform %}platform={{ current_platform }}&{% endif %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
+                   style="padding:11px 14px; border-radius:12px; border:1px solid #333;
+                          color:#888; text-decoration:none; display:flex; align-items:center;">✕</a>
             {% endif %}
         </form>
+
+        <!-- Info filtros activos -->
+        {% if search_query or current_genre or current_platform or price_min or price_max %}
+        <div style="margin-bottom:15px; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+            <span style="color:#888; font-size:0.85rem;">Filtros activos:</span>
+            {% if search_query %}
+                <span style="background:rgba(142,45,226,0.15); color:#8e2de2; padding:3px 10px; border-radius:20px; font-size:0.82rem;">
+                    🔍 "{{ search_query }}"
+                </span>
+            {% endif %}
+            {% if current_genre %}
+                <span style="background:rgba(142,45,226,0.15); color:#8e2de2; padding:3px 10px; border-radius:20px; font-size:0.82rem;">
+                    🏷 {{ current_genre }}
+                </span>
+            {% endif %}
+            {% if current_platform %}
+                <span style="background:rgba(142,45,226,0.15); color:#8e2de2; padding:3px 10px; border-radius:20px; font-size:0.82rem;">
+                    🎮 {{ current_platform }}
+                </span>
+            {% endif %}
+            {% if price_min or price_max %}
+                <span style="background:rgba(142,45,226,0.15); color:#8e2de2; padding:3px 10px; border-radius:20px; font-size:0.82rem;">
+                    💰 {{ price_min|default:"0" }}€ — {{ price_max|default:"∞" }}€
+                </span>
+            {% endif %}
+            <a href="{% url 'games:home' %}" style="font-size:0.82rem; color:#888; margin-left:4px;">Limpiar todo</a>
+        </div>
+        {% endif %}
 
         <div class="grid">
             {% for game in games %}
@@ -68,15 +233,25 @@
         {% if is_paginated %}
         <div style="text-align:center; margin-top:30px;">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn">Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if current_platform %}&platform={{ current_platform }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="btn">Previous</a>
             {% endif %}
             <span style="margin:0 15px;">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn">Next</a>
+                <a href="?page={{ page_obj.next_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if current_platform %}&platform={{ current_platform }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="btn">Next</a>
             {% endif %}
         </div>
         {% endif %}
 
     </section>
 </div>
+
+<script>
+function toggleFilter(btn, bodyId) {
+    const body = document.getElementById(bodyId);
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    btn.classList.toggle('open', !isOpen);
+}
+</script>
+
 {% endblock %}

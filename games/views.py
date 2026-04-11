@@ -20,17 +20,38 @@ class GameListView(ListView):
         qs = Game.objects.all().prefetch_related('platforms', 'availability_set', 'genres')
         q = self.request.GET.get('q', '').strip()
         genre = self.request.GET.get('genre')
+        platform = self.request.GET.get('platform')
+        price_min = self.request.GET.get('price_min')
+        price_max = self.request.GET.get('price_max')
+
         if q:
             qs = qs.filter(title__icontains=q)
         if genre:
             qs = qs.filter(genres__name=genre)
-        return qs.order_by('title')
+        if platform:
+            qs = qs.filter(platforms__name=platform)
+        if price_min:
+            try:
+                qs = qs.filter(availability__current_price__gte=float(price_min))
+            except ValueError:
+                pass
+        if price_max:
+            try:
+                qs = qs.filter(availability__current_price__lte=float(price_max))
+            except ValueError:
+                pass
+
+        return qs.distinct().order_by('title')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_query'] = self.request.GET.get('q', '').strip()
         context['current_genre'] = self.request.GET.get('genre')
+        context['current_platform'] = self.request.GET.get('platform')
+        context['price_min'] = self.request.GET.get('price_min', '')
+        context['price_max'] = self.request.GET.get('price_max', '')
         context['all_genres'] = Genre.objects.all().order_by('name')
+        context['all_platforms'] = Platform.objects.all().order_by('name')
         return context
 
 class GameDetailView(DetailView):
@@ -49,7 +70,6 @@ class GameDetailView(DetailView):
             context['is_wishlisted'] = False
         return context
 
-# Vistas de Usuario y Autenticación
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
