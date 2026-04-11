@@ -2,7 +2,7 @@ import os
 import requests
 from .models import Game, Genre, Shop, Availability, Platform
 
-RAWG_API_KEY = os.getenv('RAWG_API_KEY')
+RAWG_API_KEY = '0c2a9ea573034836b3c0de9916085843'
 
 
 def update_game_genres(game_obj):
