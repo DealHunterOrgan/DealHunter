@@ -1,41 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import ManyToManyField
 
-# Create your models here.
+class Genre(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    def __str__(self):
+        return self.name
+
+class Platform(models.Model):
+    name = models.CharField(max_length=50)
+    def __str__(self):
+        return self.name
 
 class Game(models.Model):
     title = models.CharField(max_length=100)
     api_ID = models.CharField(max_length=50, unique=True)
+    steam_appid = models.CharField(max_length=20, null=True, blank=True)
     score = models.DecimalField(max_digits=5, decimal_places=2)
-    launch_date = models.DateField()
+    launch_date = models.DateField(null=True, blank=True)
     cover_url = models.URLField()
 
-    genres = ManyToManyField('Genre', related_name="games")
-    platforms = ManyToManyField('Platform', related_name="games")
+    genres = models.ManyToManyField(Genre, related_name="games")
+    platforms = models.ManyToManyField(Platform, related_name="games")
 
     def __str__(self):
         return self.title
 
-
-class Genre(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
-class Platform(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
-# User already imported
-
-
-class Shop (models.Model):
+class Shop(models.Model):
     name = models.CharField(max_length=50)
     api_ID = models.CharField(max_length=50, unique=True)
     service_state = models.BooleanField(default=True)
@@ -44,8 +34,7 @@ class Shop (models.Model):
     def __str__(self):
         return self.name
 
-
-class Availability(models.Model):   # Game - Shop relationship
+class Availability(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
     current_price = models.DecimalField(max_digits=8, decimal_places=2)
@@ -56,10 +45,10 @@ class Availability(models.Model):   # Game - Shop relationship
         unique_together = ('game', 'shop')
 
     def __str__(self):
-        return f"{self.game.title} costs {self.shop.name}: {self.current_price}€"
+        return f"{self.game.title} en {self.shop.name}"
 
-
-class Wishlist(models.Model):  # Game - User relationship
+# --- MODELO RESTAURADO ---
+class Wishlist(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     desired_price = models.DecimalField(max_digits=8, decimal_places=2)
@@ -69,6 +58,3 @@ class Wishlist(models.Model):  # Game - User relationship
 
     def __str__(self):
         return f"{self.user.username} wants {self.game.title}"
-
-
-###############################################################################################
