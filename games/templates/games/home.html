@@ -3,26 +3,14 @@
 {% block title %}Home - DealHunter{% endblock %}
 
 {% block content %}
-
 <div class="main-layout">
-
     <aside class="sidebar">
         <div class="filter-box">
             <h3>Categories</h3>
             <ul>
-                <li><a href="#">All the ganes</a></li>
-                <li><a href="#">RPG</a></li>
+                <li><a href="{% url 'games:home' %}">All the games</a></li>
                 <li><a href="#">Action</a></li>
-                <li><a href="#">Adventure</a></li>
-            </ul>
-        </div>
-
-        <div class="filter-box">
-            <h3>Platforms</h3>
-            <ul>
-                <li><a href="#">PC (Steam)</a></li>
-                <li><a href="#">PlayStation</a></li>
-                <li><a href="#">Xbox</a></li>
+                <li><a href="#">RPG</a></li>
             </ul>
         </div>
     </aside>
@@ -40,57 +28,46 @@
 
         <div class="grid">
             {% for game in games %}
-
-                <a href="{% url 'games:detail' game.pk %}">
-
-                    <div class="card">
-                        <div class="card-image">
-                            <img src="{{ game.cover_url }}" alt="{{ game.title }}">
+                <a href="{% url 'games:detail' game.pk %}" style="text-decoration: none; color: inherit;">
+                    <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; background: #fff;">
+                        <div class="card-image" style="position: relative;">
+                            <img src="{{ game.cover_url }}" alt="{{ game.title }}" style="width: 100%; height: 200px; object-fit: cover;">
                             {% with deal=game.availability_set.first %}
                                 {% if deal %}
-                                    <span class="price-tag">{{ deal.current_price }} €</span>
+                                    <div style="position: absolute; top: 10px; right: 10px; background: #28a745; color: white; padding: 5px 10px; border-radius: 8px; font-weight: bold;">
+                                        {{ deal.current_price }}€
+                                    </div>
                                 {% endif %}
                             {% endwith %}
                         </div>
 
-                        <div class="card-info">
-                            <h3>{{ game.title }}</h3>
-                            <div class="card-meta">
+                        <div class="card-body p-3">
+                            <h5 class="fw-bold mb-2" style="font-size: 1.1rem; height: 2.4em; overflow: hidden;">{{ game.title }}</h5>
+
+                            <div class="mb-2">
+                                {% for genre in game.genres.all|slice:":3" %}
+                                    <span class="badge" style="background: rgba(142, 45, 226, 0.1); color: #8e2de2; font-size: 0.75rem; border: 1px solid rgba(142, 45, 226, 0.2); border-radius: 5px;">
+                                        {{ genre.name }}
+                                    </span>
+                                {% empty %}
+                                    <span class="text-muted" style="font-size: 0.75rem;">Sin género</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="platforms">
                                 {% for platform in game.platforms.all|slice:":2" %}
-                                    <span class="badge">{{ platform.name }}</span>
+                                    <small class="text-muted">| {{ platform.name }}</small>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
-
                 </a>
-
             {% endfor %}
         </div>
 
         {% if not games %}
-            <div class="pagination">
-                <span class="current">No games found for "{{ search_query }}".</span>
-            </div>
-        {% endif %}
-
-        {% if is_paginated %}
-            <div class="pagination">
-                <span class="step-links">
-                    {% if page_obj.has_previous %}
-                        <a href="?q={{ search_query }}&page=1" class="btn-page">&laquo; First</a>
-                        <a href="?q={{ search_query }}&page={{ page_obj.previous_page_number }}" class="btn-page">Previous</a>
-                    {% endif %}
-
-                    <span class="current">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                    </span>
-
-                    {% if page_obj.has_next %}
-                        <a href="?q={{ search_query }}&page={{ page_obj.next_page_number }}" class="btn-page">Next</a>
-                        <a href="?q={{ search_query }}&page={{ page_obj.paginator.num_pages }}" class="btn-page">Last &raquo;</a>
-                    {% endif %}
-                </span>
+            <div class="text-center py-5">
+                <p class="text-muted">No games found for "{{ search_query }}".</p>
             </div>
         {% endif %}
     </section>
