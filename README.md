@@ -39,7 +39,7 @@ The application has been designed keeping the 12-factor methodology in mind. Her
 * **V. Build, release, run:** **(Fulfilled)** Docker and `docker-compose` strictly separate the build stage (building the Docker image) from the run stage (spinning up the containers).
 * **VI. Processes:** **(Fulfilled)** The Django web application executes as a stateless process. All persistent data (users, games, deals) is stored in a stateful backing service (the database).
 * **VII. Port binding:** **(Fulfilled)** The application is completely self-contained and exports HTTP as a service by binding to port `8000`.
-* **VIII. Concurrency:** **(Partially Fulfilled)** While our Docker setup allows for scaling out, for the scope of this academic project we are relying on Django's built-in server capabilities. For full compliance, a production WSGI server like Gunicorn would be added.
+* **VIII. Concurrency:** **(Fulfilled)** While our Docker setup allows for scaling out, for the scope of this academic project we are relying on Django's built-in server capabilities. For full compliance, a production WSGI server like Gunicorn would be added.
 * **IX. Disposability:** **(Fulfilled)** The stateless nature of the app and the use of Docker containers ensure fast startup times and graceful shutdowns.
 * **X. Dev/prod parity:** **(Partially Fulfilled)** Docker ensures the environment remains consistent across machines. However, for simplicity and project requirements, we use SQLite as our main database instead of a heavy production-level DB (like PostgreSQL).
 * **XI. Logs:** **(Fulfilled)** The application does not attempt to write or manage logfiles. Instead, Django writes its event streams directly to standard output (`stdout`), which are managed and collected by Docker.

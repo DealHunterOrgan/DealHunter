@@ -10,7 +10,7 @@
         <div class="filter-box">
             <h3>Categories</h3>
             <ul>
-                <li><a href="#">All the ganes</a></li>
+                <li><a href="#">All the games</a></li>
                 <li><a href="#">RPG</a></li>
                 <li><a href="#">Action</a></li>
                 <li><a href="#">Adventure</a></li>
@@ -54,10 +54,13 @@
                         </div>
 
                         <div class="card-info">
-                            <h3>{{ game.title }}</h3>
+                            <h3 style="color: #ffffff; font-weight: bold; margin-bottom: 8px;">{{ game.title }}</h3>
+
                             <div class="card-meta">
                                 {% for platform in game.platforms.all|slice:":2" %}
-                                    <span class="badge">{{ platform.name }}</span>
+                                    <span class="badge" style="color: #f8f9fa; background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+                                        {{ platform.name }}
+                                    </span>
                                 {% endfor %}
                             </div>
                         </div>
@@ -75,24 +78,24 @@
         {% endif %}
 
         {% if is_paginated %}
-            <div class="pagination">
-                <span class="step-links">
-                    {% if page_obj.has_previous %}
-                        <a href="?q={{ search_query }}&page=1" class="btn-page">&laquo; First</a>
-                        <a href="?q={{ search_query }}&page={{ page_obj.previous_page_number }}" class="btn-page">Previous</a>
-                    {% endif %}
+        <div class="pagination-container" style="text-align: center; margin: 40px 0;">
+            <div class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page=1" class="btn btn-sm" style="border: 1px solid #4a00e0; color: #4a00e0; padding: 8px 15px; border-radius: 5px; text-decoration: none; margin-right: 5px;">&laquo; First</a>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}" class="btn btn-sm" style="border: 1px solid #4a00e0; color: #4a00e0; padding: 8px 15px; border-radius: 5px; text-decoration: none;">Previous</a>
+                {% endif %}
 
-                    <span class="current">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                    </span>
-
-                    {% if page_obj.has_next %}
-                        <a href="?q={{ search_query }}&page={{ page_obj.next_page_number }}" class="btn-page">Next</a>
-                        <a href="?q={{ search_query }}&page={{ page_obj.paginator.num_pages }}" class="btn-page">Last &raquo;</a>
-                    {% endif %}
+                <span class="current" style="font-weight: bold; font-size: 1.1rem; color: #333; margin: 0 20px;">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
                 </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}" class="btn btn-sm" style="background-color: #4a00e0; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; margin-right: 5px;">Next</a>
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="btn btn-sm" style="background-color: #4a00e0; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none;">Last &raquo;</a>
+                {% endif %}
             </div>
+        </div>
         {% endif %}
-    </section>
+        </section>
 </div>
 {% endblock %}
