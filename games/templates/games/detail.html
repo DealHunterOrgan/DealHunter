@@ -1,72 +1,64 @@
 {% extends 'games/base.html' %}
 
-{% block title %}{{ game.title }} - DealHunter{% endblock %}
-
 {% block content %}
-<div class="container mt-4">
-    <p class="back-link">
-        <a href="{% url 'games:home' %}" class="text-decoration-none text-muted">&larr; Return to the catalog</a>
-    </p>
+<div class="detail-container" style="max-width:1000px; margin:40px auto; padding:20px; display:flex; gap:40px;">
+    <div class="detail-image">
+        <img src="{{ game.cover_url }}" style="width:350px; border-radius:15px;">
+    </div>
 
-    <div class="row bg-white p-4 rounded-4 shadow-sm">
-        <div class="col-md-4 mb-4">
-            <img src="{{ game.cover_url }}" alt="{{ game.title }}" class="img-fluid rounded-4 shadow">
+    <div class="detail-info" style="flex:1;">
+        <h1>{{ game.title }}</h1>
+
+        <div style="margin: 15px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            {% for genre in game.genres.all %}
+                <span style="background:#8e2de2; color:white; padding:5px 10px; border-radius:8px;">{{ genre.name }}</span>
+            {% endfor %}
+
+            {% for platform in game.platforms.all %}
+                <span style="background: #eee; color: #555; padding: 5px 10px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold;">
+                    {{ platform.name }}
+                </span>
+            {% endfor %}
         </div>
 
-        <div class="col-md-8">
-            <h1 class="display-5 fw-bold">{{ game.title }}</h1>
+        <div class="buy-card" style="background:#f8f9fa; padding:20px; border-radius:15px; border: 1px solid #eee;">
+            {% if user.is_authenticated %}
+                <p style="font-weight:bold; margin-bottom:12px;">Ofertas disponibles:</p>
+                {% for deal in game.availability_set.all %}
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:white; padding:15px; border-radius:10px; margin-bottom:10px; border: 1px solid #eee;">
 
-            <div class="my-4">
-                <p class="mb-2"><strong>Plataformas:</strong>
-                    {% for platform in game.platforms.all %}
-                        <span class="badge bg-light text-dark border">{{ platform.name }}</span>
-                    {% endfor %}
-                </p>
+                        <!-- Tienda: logo + nombre -->
+                        <div style="display:flex; align-items:center; gap:10px; min-width:140px;">
+                            {% if deal.shop.logo_url %}
+                                <img src="{{ deal.shop.logo_url }}" alt="{{ deal.shop.name }}"
+                                     style="height:28px; object-fit:contain;"
+                                     onerror="this.style.display='none'">
+                            {% endif %}
+                            <span style="font-size:0.9rem; color:#555; font-weight:600;">{{ deal.shop.name }}</span>
+                        </div>
 
-                <p><strong>Gèneres:</strong>
-                    {% for genre in game.genres.all %}
-                        <span class="badge" style="background: #8e2de2; color: white;">
-                            {{ genre.name }}
-                        </span>
-                    {% empty %}
-                        <span class="text-muted">Información no disponible</span>
-                    {% endfor %}
-                </p>
+                        <!-- Precio -->
+                        <span style="font-size:1.8rem; font-weight:bold; color:#28a745;">{{ deal.current_price }}€</span>
 
-                <p><strong>Puntuación Metacritic:</strong>
-                    <span class="badge {% if game.score >= 75 %}bg-success{% else %}bg-warning{% endif %}">
-                        {{ game.score }}
-                    </span>
-                </p>
-            </div>
+                        <!-- Botón comprar -->
+                        <a href="{{ deal.offer_url }}" target="_blank"
+                           style="background:#28a745; color:white; padding:10px 20px; border-radius:8px; text-decoration:none; white-space:nowrap;">
+                            COMPRAR
+                        </a>
+                    </div>
+                {% empty %}
+                    <p style="color:#999;">No hay ofertas disponibles ahora mismo.</p>
+                {% endfor %}
 
-            <h3 class="mt-5 mb-3">💰 Best Deals</h3>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Store</th>
-                            <th>Price</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for deal in game.availability_set.all %}
-                            <tr>
-                                <td><strong>{{ deal.shop.name }}</strong></td>
-                                <td class="text-success fw-bold">{{ deal.current_price }}€</td>
-                                <td class="text-end">
-                                    <a href="{{ deal.offer_url }}" target="_blank" class="btn btn-primary rounded-pill px-4">Buy &rarr;</a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center text-muted">No deals available currently.</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                <form action="{% url 'games:toggle_wishlist' game.pk %}" method="POST" style="margin-top:10px;">
+                    {% csrf_token %}
+                    <button type="submit" style="width:100%; padding:10px; border-radius:10px; border: 1px solid #8e2de2; color:#8e2de2; background:none; cursor:pointer;">
+                        {% if is_wishlisted %}❤️ Quitar de la Wishlist{% else %}🤍 Añadir a la Wishlist{% endif %}
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'games:login' %}" style="display:block; text-align:center; background:#8e2de2; color:white; padding:15px; border-radius:10px; text-decoration:none;">Identifícate para comprar</a>
+            {% endif %}
         </div>
     </div>
 </div>

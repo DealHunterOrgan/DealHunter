@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.views import View
 
 from .forms import CustomUserCreationForm
-from .models import Game, Wishlist, Genre
+from .models import Game, Wishlist, Genre, Platform
 
 class GameListView(ListView):
     model = Game
@@ -17,18 +17,14 @@ class GameListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = (
-            Game.objects.all()
-            .prefetch_related('platforms', 'availability_set', 'genres')
-            .order_by('title')
-        )
-        query = self.request.GET.get('q', '').strip()
-        genre_name = self.request.GET.get('genre')
-        if query:
-            queryset = queryset.filter(title__icontains=query)
-        if genre_name:
-            queryset = queryset.filter(genres__name=genre_name)
-        return queryset
+        qs = Game.objects.all().prefetch_related('platforms', 'availability_set', 'genres')
+        q = self.request.GET.get('q', '').strip()
+        genre = self.request.GET.get('genre')
+        if q:
+            qs = qs.filter(title__icontains=q)
+        if genre:
+            qs = qs.filter(genres__name=genre)
+        return qs.order_by('title')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -42,6 +38,9 @@ class GameDetailView(DetailView):
     template_name = 'games/detail.html'
     context_object_name = 'game'
 
+    def get_queryset(self):
+        return Game.objects.all().prefetch_related('platforms', 'genres', 'availability_set__shop')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
@@ -50,10 +49,10 @@ class GameDetailView(DetailView):
             context['is_wishlisted'] = False
         return context
 
+# Vistas de Usuario y Autenticación
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
-# --- LA VISTA QUE TE DABA ERROR ---
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
     template_name = 'registration/signup.html'
