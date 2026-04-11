@@ -1,6 +1,6 @@
 # DealHunter 🎮💰
-**Course:** [Projecte Web - Enginyeria Informatica 2025/26]  
-**Professors:** [Roberto Garcia and David Sarrat]
+**Course:** Projecte Web - Enginyeria Informatica 2025/2026  
+**Teachers:** Roberto Garcia and David Sarrat
 
 ![Logo](Logos/DealHunter.png)
 
@@ -51,7 +51,7 @@ The application has been designed keeping the 12-factor methodology in mind. Her
 1. Clone the repository: `git clone git@github.com:DealHunterOrgan/DealHunter.git`
 2. Navigate to the directory: `cd DealHunter`
 3. Activate the virtual environment:
-   * Mac/Linux: `source dhunter/bin/activate` or `source .env/bin/activate
+   * Mac/Linux: `source dhunter/bin/activate` or `source .env/bin/activate`
    * Windows: `dhunter\Scripts\activate`
 4. Install dependencies: `pip install -r requirements.txt`
 5. Apply migrations: `python manage.py migrate`
