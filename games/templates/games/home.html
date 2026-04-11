@@ -13,14 +13,13 @@
                         All the games
                     </a>
                 </li>
-
                 {% for genre in all_genres %}
-                    <li>
-                        <a href="?genre={{ genre.name }}{% if search_query %}&q={{ search_query }}{% endif %}"
-                           {% if current_genre == genre.name %}style="font-weight: bold; color: #8e2de2;"{% endif %}>
-                            {{ genre.name }}
-                        </a>
-                    </li>
+                <li>
+                    <a href="?genre={{ genre.name }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       {% if current_genre == genre.name %}style="font-weight: bold; color: #8e2de2;"{% endif %}>
+                        {{ genre.name }}
+                    </a>
+                </li>
                 {% endfor %}
             </ul>
         </div>
@@ -42,10 +41,10 @@
 
         <div class="grid">
             {% for game in games %}
-                <a href="{% url 'games:detail' game.pk %}" style="text-decoration: none; color: inherit;">
+                <a href="{% url 'games:detail' game.pk %}" class="card-link" style="text-decoration: none; color: inherit;">
                     <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; background: #fff;">
                         <div class="card-image" style="position: relative;">
-                            <img src="{{ game.cover_url }}" alt="{{ game.title }}" style="width: 100%; height: 200px; object-fit: cover;">
+                            <img src="{{ game.cover_url }}" alt="{{ game.title }}" style="width: 100%; height: 250px; object-fit: cover;">
                             {% with deal=game.availability_set.first %}
                                 {% if deal %}
                                     <div style="position: absolute; top: 10px; right: 10px; background: #28a745; color: white; padding: 5px 10px; border-radius: 8px; font-weight: bold;">
@@ -56,11 +55,11 @@
                         </div>
 
                         <div class="card-body p-3">
-                            <h5 class="fw-bold mb-2" style="font-size: 1.1rem; height: 2.4em; overflow: hidden;">{{ game.title }}</h5>
+                            <h5 class="fw-bold mb-2" style="font-size: 1.1rem; height: 2.4em; overflow: hidden; color: #333;">{{ game.title }}</h5>
 
                             <div class="mb-2">
                                 {% for genre in game.genres.all|slice:":3" %}
-                                    <span class="badge" style="background: rgba(142, 45, 226, 0.1); color: #8e2de2; font-size: 0.75rem; border: 1px solid rgba(142, 45, 226, 0.2); border-radius: 5px;">
+                                    <span class="badge" style="background: rgba(142, 45, 226, 0.1); color: #8e2de2; font-size: 0.75rem; border: 1px solid rgba(142, 45, 226, 0.2); border-radius: 5px; padding: 3px 8px; margin-right: 3px;">
                                         {{ genre.name }}
                                     </span>
                                 {% endfor %}
@@ -87,17 +86,17 @@
         <div class="pagination-container" style="text-align: center; margin: 40px 0;">
             <div class="step-links">
                 {% if page_obj.has_previous %}
-                    <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">&laquo; First</a>
-                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">Previous</a>
+                    <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page" style="padding: 10px; text-decoration: none; background: #eee; border-radius: 5px; margin: 0 5px;">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page" style="padding: 10px; text-decoration: none; background: #eee; border-radius: 5px; margin: 0 5px;">Previous</a>
                 {% endif %}
 
-                <span class="current" style="margin: 0 15px;">
+                <span class="current" style="margin: 0 15px; font-weight: bold;">
                     Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
                 </span>
 
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">Next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">Last &raquo;</a>
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page" style="padding: 10px; text-decoration: none; background: #eee; border-radius: 5px; margin: 0 5px;">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page" style="padding: 10px; text-decoration: none; background: #eee; border-radius: 5px; margin: 0 5px;">Last &raquo;</a>
                 {% endif %}
             </div>
         </div>
