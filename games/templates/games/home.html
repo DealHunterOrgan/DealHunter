@@ -8,18 +8,32 @@
         <div class="filter-box">
             <h3>Categories</h3>
             <ul>
-                <li><a href="{% url 'games:home' %}">All the games</a></li>
-                <li><a href="#">Action</a></li>
-                <li><a href="#">RPG</a></li>
+                <li>
+                    <a href="{% url 'games:home' %}" {% if not current_genre %}style="font-weight: bold; color: #8e2de2;"{% endif %}>
+                        All the games
+                    </a>
+                </li>
+
+                {% for genre in all_genres %}
+                    <li>
+                        <a href="?genre={{ genre.name }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                           {% if current_genre == genre.name %}style="font-weight: bold; color: #8e2de2;"{% endif %}>
+                            {{ genre.name }}
+                        </a>
+                    </li>
+                {% endfor %}
             </ul>
         </div>
     </aside>
 
     <section class="content-area">
         <div class="hero-header">
-            {% if search_query %}
-                <h1>🔎 Search Results</h1>
-                <p>Showing matches for "{{ search_query }}".</p>
+            {% if search_query or current_genre %}
+                <h1>🔎 Results</h1>
+                <p>
+                    {% if search_query %}Searching: "{{ search_query }}"{% endif %}
+                    {% if current_genre %} Genre: {{ current_genre }}{% endif %}
+                </p>
             {% else %}
                 <h1>🔥 Special Offers</h1>
                 <p>Find the best prices for your favorite video games.</p>
@@ -49,8 +63,6 @@
                                     <span class="badge" style="background: rgba(142, 45, 226, 0.1); color: #8e2de2; font-size: 0.75rem; border: 1px solid rgba(142, 45, 226, 0.2); border-radius: 5px;">
                                         {{ genre.name }}
                                     </span>
-                                {% empty %}
-                                    <span class="text-muted" style="font-size: 0.75rem;">Sin género</span>
                                 {% endfor %}
                             </div>
 
@@ -67,7 +79,7 @@
 
         {% if not games %}
             <div class="text-center py-5">
-                <p class="text-muted">No games found for "{{ search_query }}".</p>
+                <p class="text-muted">No games found.</p>
             </div>
         {% endif %}
 
@@ -75,17 +87,17 @@
         <div class="pagination-container" style="text-align: center; margin: 40px 0;">
             <div class="step-links">
                 {% if page_obj.has_previous %}
-                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page=1" class="btn btn-sm" style="border: 1px solid #4a00e0; color: #4a00e0; padding: 8px 15px; border-radius: 5px; text-decoration: none; margin-right: 5px;">&laquo; First</a>
-                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}" class="btn btn-sm" style="border: 1px solid #4a00e0; color: #4a00e0; padding: 8px 15px; border-radius: 5px; text-decoration: none;">Previous</a>
+                    <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">Previous</a>
                 {% endif %}
 
-                <span class="current" style="font-weight: bold; font-size: 1.1rem; color: #333; margin: 0 20px;">
+                <span class="current" style="margin: 0 15px;">
                     Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
                 </span>
 
                 {% if page_obj.has_next %}
-                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}" class="btn btn-sm" style="background-color: #4a00e0; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; margin-right: 5px;">Next</a>
-                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="btn btn-sm" style="background-color: #4a00e0; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none;">Last &raquo;</a>
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_genre %}&genre={{ current_genre }}{% endif %}" class="btn-page">Last &raquo;</a>
                 {% endif %}
             </div>
         </div>

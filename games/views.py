@@ -1,34 +1,52 @@
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.views import View
-from django.shortcuts import get_object_or_404, redirect
 
 from .forms import CustomUserCreationForm
-from .models import Game, Wishlist
+from .models import Game, Wishlist, Genre
 
-# ... (Tus vistas GameListView, GameDetailView, CustomLoginView y SignUpView se mantienen igual) ...
 
 class GameListView(ListView):
     model = Game
     template_name = 'games/home.html'
     context_object_name = 'games'
-    paginate_by = 40
+    paginate_by = 12
 
     def get_queryset(self):
-        queryset = Game.objects.all().prefetch_related('platforms', 'availability_set').order_by('title')
+        # Optimitzem la consulta amb prefetch_related incloent genres
+        queryset = (
+            Game.objects.all()
+            .prefetch_related('platforms', 'availability_set', 'genres')
+            .order_by('title')
+        )
+
+        # Filtre de cerca per text (Buscador)
         query = self.request.GET.get('q', '').strip()
         if query:
             queryset = queryset.filter(title__icontains=query)
+
+        # Filtre per Gènere (Barra lateral)
+        genre_name = self.request.GET.get('genre')
+        if genre_name:
+            queryset = queryset.filter(genres__name=genre_name)
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Mantenim els valors actuals per a la cerca i el filtre a la plantilla
         context['search_query'] = self.request.GET.get('q', '').strip()
+        context['current_genre'] = self.request.GET.get('genre')
+
+        # Enviem tots els gèneres disponibles a la barra lateral
+        context['all_genres'] = Genre.objects.all().order_by('name')
         return context
+
 
 class GameDetailView(DetailView):
     model = Game
@@ -37,14 +55,25 @@ class GameDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Comprovem si el joc està a la Wishlist de l'usuari
         if self.request.user.is_authenticated:
-            context['is_wishlisted'] = Wishlist.objects.filter(user=self.request.user, game=self.object).exists()
+            context['is_wishlisted'] = Wishlist.objects.filter(
+                user=self.request.user,
+                game=self.object
+            ).exists()
         else:
             context['is_wishlisted'] = False
         return context
 
+
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = ""
+        return context
+
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
@@ -55,7 +84,8 @@ class SignUpView(CreateView):
         login(self.request, user)
         return redirect('games:home')
 
-# --- NUEVAS VISTAS ---
+
+# --- VISTES DE PERFIL I COMPTE ---
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'registration/profile.html'
@@ -65,15 +95,19 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context["search_query"] = ""
         return context
 
+
 class DeleteAccountView(LoginRequiredMixin, DeleteView):
     model = User
     template_name = 'registration/delete_confirm.html'
     success_url = reverse_lazy('games:home')
 
     def get_object(self, queryset=None):
+        # Assegurem que l'usuari només pugui esborrar el seu propi compte
         return self.request.user
 
-# Wishlist view (login required))
+
+# --- VISTES DE WISHLIST ---
+
 class ToggleWishlistView(LoginRequiredMixin, View):
     def post(self, request, pk):
         game = get_object_or_404(Game, pk=pk)
@@ -85,7 +119,8 @@ class ToggleWishlistView(LoginRequiredMixin, View):
             # Si ja el té, l'esborrem de la taula
             wishlist_item.delete()
         else:
-            # Si no el té, creem el registre (posem desired_price a 0)
+            # Si no el té, creem el registre (posem desired_price a 0.00 per defecte)
             Wishlist.objects.create(user=request.user, game=game, desired_price=0.00)
 
+        # Redirigim a la pàgina d'on venia l'usuari
         return redirect(request.META.get('HTTP_REFERER', 'games:home'))
