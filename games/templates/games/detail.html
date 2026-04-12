@@ -9,6 +9,7 @@
     <div class="detail-info" style="flex:1;">
         <h1>{{ game.title }}</h1>
 
+        <!-- Géneros y plataformas -->
         <div style="margin: 12px 0 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             {% for genre in game.genres.all %}
                 <span style="background:#7c4dff; color:white; padding:4px 12px; border-radius:20px; font-size:0.82rem;">{{ genre.name }}</span>
@@ -20,26 +21,28 @@
             {% endfor %}
         </div>
 
+        <!-- Score Metacritic -->
         {% if game.score and game.score > 0 %}
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-            <div style="
-                width:58px; height:58px; border-radius:12px; display:flex; flex-direction:column;
-                align-items:center; justify-content:center;
-                background: {% if game.score >= 75 %}rgba(0,230,118,0.15){% elif game.score >= 50 %}rgba(255,193,7,0.15){% else %}rgba(255,82,82,0.15){% endif %};
-                border: 2px solid {% if game.score >= 75 %}#00e676{% elif game.score >= 50 %}#ffc107{% else %}#ff5252{% endif %};">
-                <span style="font-size:1.3rem; font-weight:800; color:{% if game.score >= 75 %}#00e676{% elif game.score >= 50 %}#ffc107{% else %}#ff5252{% endif %};">
-                    {{ game.score|floatformat:0 }}
-                </span>
-            </div>
             <div>
-                <div style="font-size:0.75rem; color:#666; text-transform:uppercase; letter-spacing:0.08em;">Metacritic</div>
-                <div style="font-size:0.9rem; color:{% if game.score >= 75 %}#00e676{% elif game.score >= 50 %}#ffc107{% else %}#ff5252{% endif %}; font-weight:600;">
-                    {% if game.score >= 75 %}Positive{% elif game.score >= 50 %}Mixed{% else %}Negative{% endif %}
+                <div style="font-size:0.75rem; color:#666; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">Metacritic score</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.5rem; letter-spacing:2px;
+                        color:{% if game.score >= 80 %}#00e676{% elif game.score >= 60 %}#ffc107{% elif game.score >= 40 %}#ff9800{% else %}#ff5252{% endif %};">
+                        {% if game.score >= 80 %}★★★★★
+                        {% elif game.score >= 60 %}★★★★☆
+                        {% elif game.score >= 40 %}★★★☆☆
+                        {% elif game.score >= 20 %}★★☆☆☆
+                        {% else %}★☆☆☆☆
+                        {% endif %}
+                    </span>
+                    <span style="font-size:0.85rem; color:#666;">{{ game.score|floatformat:0 }}/100</span>
                 </div>
             </div>
         </div>
         {% endif %}
 
+        <!-- Buy card -->
         <div class="buy-card">
             {% if user.is_authenticated %}
                 <p style="font-weight:bold; margin-bottom:12px; color:#eee;">Available deals:</p>

@@ -147,8 +147,15 @@
                             <span class="game-tag">{{ genre.name }}</span>
                         {% endfor %}
                         {% if game.score and game.score > 0 %}
-                            <span class="game-score {% if game.score >= 75 %}score-good{% elif game.score >= 50 %}score-mid{% else %}score-bad{% endif %}">
-                                ★ {{ game.score|floatformat:0 }}
+                            <span class="game-stars" title="Metacritic: {{ game.score|floatformat:0 }}/100">
+                                {% with stars=game.score|floatformat:0 %}
+                                {% if stars >= "80" %}★★★★★
+                                {% elif stars >= "60" %}★★★★☆
+                                {% elif stars >= "40" %}★★★☆☆
+                                {% elif stars >= "20" %}★★☆☆☆
+                                {% else %}★☆☆☆☆
+                                {% endif %}
+                                {% endwith %}
                             </span>
                         {% endif %}
                     </div>
