@@ -5,10 +5,12 @@ from django.views.generic import ListView, DetailView, CreateView, TemplateView,
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.views import View
 
 from .forms import CustomUserCreationForm
 from .models import Game, Wishlist, Genre, Platform
+
 
 class GameListView(ListView):
     model = Game
@@ -19,17 +21,30 @@ class GameListView(ListView):
     def get_queryset(self):
         qs = Game.objects.all().prefetch_related('platforms', 'availability_set', 'genres')
         q = self.request.GET.get('q', '').strip()
-        genre = self.request.GET.get('genre')
-        platform = self.request.GET.get('platform')
+
+        # Multi-select: getlist devuelve lista de valores
+        genres = self.request.GET.getlist('genre')
+        platforms = self.request.GET.getlist('platform')
         price_min = self.request.GET.get('price_min')
         price_max = self.request.GET.get('price_max')
 
         if q:
             qs = qs.filter(title__icontains=q)
-        if genre:
-            qs = qs.filter(genres__name=genre)
-        if platform:
-            qs = qs.filter(platforms__name=platform)
+
+        # Filtrar por múltiples géneros (OR entre ellos)
+        if genres:
+            qs = qs.filter(genres__name__in=genres)
+
+        # Filtrar por múltiples plataformas (OR entre ellas)
+        # Normalizar "Steam" para incluir tanto "Steam" como "Store 1"
+        if platforms:
+            normalized = []
+            for p in platforms:
+                normalized.append(p)
+                if p == 'Steam':
+                    normalized.append('Store 1')  # datos viejos
+            qs = qs.filter(platforms__name__in=normalized)
+
         if price_min:
             try:
                 qs = qs.filter(availability__current_price__gte=float(price_min))
@@ -46,13 +61,30 @@ class GameListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_query'] = self.request.GET.get('q', '').strip()
-        context['current_genre'] = self.request.GET.get('genre')
-        context['current_platform'] = self.request.GET.get('platform')
+        context['selected_genres'] = self.request.GET.getlist('genre')
+        context['selected_platforms'] = self.request.GET.getlist('platform')
         context['price_min'] = self.request.GET.get('price_min', '')
         context['price_max'] = self.request.GET.get('price_max', '')
-        context['all_genres'] = Genre.objects.all().order_by('name')
-        context['all_platforms'] = Platform.objects.all().order_by('name')
+
+        # Géneros con conteo, solo los que tienen juegos
+        context['all_genres'] = (
+            Genre.objects
+            .annotate(game_count=Count('games', distinct=True))
+            .filter(game_count__gt=0)
+            .order_by('name')
+        )
+
+        context['all_platforms'] = (
+            Platform.objects
+            .annotate(game_count=Count('games', distinct=True))
+            .filter(game_count__gt=0)
+            .exclude(name__startswith='Store ')
+            .exclude(name='PC Digital')
+            .order_by('name')
+        )
+
         return context
+
 
 class GameDetailView(DetailView):
     model = Game
@@ -65,13 +97,17 @@ class GameDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['is_wishlisted'] = Wishlist.objects.filter(user=self.request.user, game=self.object).exists()
+            context['is_wishlisted'] = Wishlist.objects.filter(
+                user=self.request.user, game=self.object
+            ).exists()
         else:
             context['is_wishlisted'] = False
         return context
 
+
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
+
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
@@ -82,8 +118,10 @@ class SignUpView(CreateView):
         login(self.request, user)
         return redirect('games:home')
 
+
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'registration/profile.html'
+
 
 class DeleteAccountView(LoginRequiredMixin, DeleteView):
     model = User
@@ -92,6 +130,7 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         return self.request.user
+
 
 class ToggleWishlistView(LoginRequiredMixin, View):
     def post(self, request, pk):

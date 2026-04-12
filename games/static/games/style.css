@@ -560,3 +560,45 @@ footer p { color: #3a3a3a; font-size: 0.85rem; }
     border-radius: 40px !important;
 }
 .custom-search-button:hover { background: #6535e8 !important; }
+
+/* ========================
+   CHECKBOXES MULTI-SELECT
+======================== */
+.check-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #999;
+    font-size: 0.86rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    user-select: none;
+}
+.check-label:hover { background: rgba(124,77,255,0.1); color: #bb86fc; }
+.check-label input[type=checkbox] { accent-color: #7c4dff; width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
+.check-label input[type=checkbox]:checked + .check-name { color: #bb86fc; font-weight: 600; }
+.check-name { flex: 1; }
+.check-count {
+    font-size: 0.75rem;
+    color: #444;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 1px 7px;
+    flex-shrink: 0;
+}
+.check-label:hover .check-count { color: #666; }
+.check-label input[type=checkbox]:checked ~ .check-count { color: #7c4dff; background: rgba(124,77,255,0.15); }
+
+.filter-clear-link {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.76rem;
+    color: #555;
+    text-decoration: none;
+    text-align: left;
+    transition: color 0.15s;
+    padding: 0 10px;
+}
+.filter-clear-link:hover { color: #bb86fc; }

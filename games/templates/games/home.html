@@ -10,54 +10,66 @@
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
 
-        <!-- Géneros -->
+        <!-- Géneros (checkboxes multi-select) -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'genres-body')">
                 Categories <span class="arrow">▼</span>
             </button>
             <div class="filter-body" id="genres-body">
-                <ul>
-                    <li>
-                        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if current_platform %}platform={{ current_platform }}&{% endif %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
-                           {% if not current_genre %}class="active"{% endif %}>All</a>
-                    </li>
-                    {% for genre in all_genres %}
-                    <li>
-                        <a href="?genre={{ genre.name }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_platform %}&platform={{ current_platform }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}"
-                           {% if current_genre == genre.name %}class="active"{% endif %}>
-                            {{ genre.name }}
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <form id="genre-form" method="GET" action="{% url 'games:home' %}">
+                    {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                    {% for p in selected_platforms %}<input type="hidden" name="platform" value="{{ p }}">{% endfor %}
+                    {% if price_min %}<input type="hidden" name="price_min" value="{{ price_min }}">{% endif %}
+                    {% if price_max %}<input type="hidden" name="price_max" value="{{ price_max }}">{% endif %}
+                    <ul>
+                        {% for genre in all_genres %}
+                        <li>
+                            <label class="check-label">
+                                <input type="checkbox" name="genre" value="{{ genre.name }}"
+                                    {% if genre.name in selected_genres %}checked{% endif %}
+                                    onchange="document.getElementById('genre-form').submit()">
+                                <span class="check-name">{{ genre.name }}</span>
+                                <span class="check-count">{{ genre.game_count }}</span>
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if selected_genres %}
+                        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% for p in selected_platforms %}platform={{ p }}&{% endfor %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
+                           class="filter-clear-link">✕ Clear categories</a>
+                    {% endif %}
+                </form>
             </div>
         </div>
 
-        <!-- Plataformas -->
+        <!-- Plataformas (checkboxes multi-select) -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'platforms-body')">
                 Platforms <span class="arrow">▼</span>
             </button>
             <div class="filter-body" id="platforms-body">
-                <form method="GET" action="{% url 'games:home' %}">
+                <form id="platform-form" method="GET" action="{% url 'games:home' %}">
                     {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
-                    {% if current_genre %}<input type="hidden" name="genre" value="{{ current_genre }}">{% endif %}
+                    {% for g in selected_genres %}<input type="hidden" name="genre" value="{{ g }}">{% endfor %}
                     {% if price_min %}<input type="hidden" name="price_min" value="{{ price_min }}">{% endif %}
                     {% if price_max %}<input type="hidden" name="price_max" value="{{ price_max }}">{% endif %}
                     <ul style="max-height:none;">
-                        <li>
-                            <label class="platform-label">
-                                <input type="radio" name="platform" value="" {% if not current_platform %}checked{% endif %} onchange="this.form.submit()"> All
-                            </label>
-                        </li>
                         {% for platform in all_platforms %}
                         <li>
-                            <label class="platform-label">
-                                <input type="radio" name="platform" value="{{ platform.name }}" {% if current_platform == platform.name %}checked{% endif %} onchange="this.form.submit()"> {{ platform.name }}
+                            <label class="check-label">
+                                <input type="checkbox" name="platform" value="{{ platform.name }}"
+                                    {% if platform.name in selected_platforms %}checked{% endif %}
+                                    onchange="document.getElementById('platform-form').submit()">
+                                <span class="check-name">{{ platform.name }}</span>
+                                <span class="check-count">{{ platform.game_count }}</span>
                             </label>
                         </li>
                         {% endfor %}
                     </ul>
+                    {% if selected_platforms %}
+                        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% for g in selected_genres %}genre={{ g }}&{% endfor %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
+                           class="filter-clear-link">✕ Clear platforms</a>
+                    {% endif %}
                 </form>
             </div>
         </div>
@@ -70,8 +82,8 @@
             <div class="filter-body" id="price-body" style="display:none;">
                 <form method="GET" action="{% url 'games:home' %}">
                     {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
-                    {% if current_genre %}<input type="hidden" name="genre" value="{{ current_genre }}">{% endif %}
-                    {% if current_platform %}<input type="hidden" name="platform" value="{{ current_platform }}">{% endif %}
+                    {% for g in selected_genres %}<input type="hidden" name="genre" value="{{ g }}">{% endfor %}
+                    {% for p in selected_platforms %}<input type="hidden" name="platform" value="{{ p }}">{% endfor %}
                     <div style="font-size:0.75rem; color:#666; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.08em;">Price range (€)</div>
                     <div class="price-range-inputs">
                         <input type="number" name="price_min" placeholder="0" value="{{ price_min }}" min="0" max="999" step="0.5">
@@ -80,8 +92,8 @@
                     </div>
                     <button type="submit" class="price-apply-btn">Apply</button>
                     {% if price_min or price_max %}
-                        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if current_genre %}genre={{ current_genre }}&{% endif %}{% if current_platform %}platform={{ current_platform }}{% endif %}"
-                           style="display:block; margin-top:6px; font-size:0.78rem; color:#666; text-align:center; text-decoration:none;">✕ Remove price filter</a>
+                        <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% for g in selected_genres %}genre={{ g }}&{% endfor %}{% for p in selected_platforms %}platform={{ p }}&{% endfor %}"
+                           class="filter-clear-link" style="margin-top:6px; text-align:center;">✕ Remove price filter</a>
                     {% endif %}
                 </form>
             </div>
@@ -94,8 +106,8 @@
 
         <!-- Buscador -->
         <form method="GET" action="{% url 'games:home' %}" class="search-bar-form">
-            {% if current_genre %}<input type="hidden" name="genre" value="{{ current_genre }}">{% endif %}
-            {% if current_platform %}<input type="hidden" name="platform" value="{{ current_platform }}">{% endif %}
+            {% for g in selected_genres %}<input type="hidden" name="genre" value="{{ g }}">{% endfor %}
+            {% for p in selected_platforms %}<input type="hidden" name="platform" value="{{ p }}">{% endfor %}
             {% if price_min %}<input type="hidden" name="price_min" value="{{ price_min }}">{% endif %}
             {% if price_max %}<input type="hidden" name="price_max" value="{{ price_max }}">{% endif %}
             <div class="search-pill">
@@ -106,18 +118,18 @@
                 <span class="search-btn-icon">🔍</span> Search
             </button>
             {% if search_query %}
-                <a href="?{% if current_genre %}genre={{ current_genre }}&{% endif %}{% if current_platform %}platform={{ current_platform }}&{% endif %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
+                <a href="?{% for g in selected_genres %}genre={{ g }}&{% endfor %}{% for p in selected_platforms %}platform={{ p }}&{% endfor %}{% if price_min %}price_min={{ price_min }}&{% endif %}{% if price_max %}price_max={{ price_max }}{% endif %}"
                    class="search-clear">✕</a>
             {% endif %}
         </form>
 
         <!-- Filtros activos -->
-        {% if search_query or current_genre or current_platform or price_min or price_max %}
+        {% if search_query or selected_genres or selected_platforms or price_min or price_max %}
         <div class="active-filters">
             <span class="active-filters-label">Active filters:</span>
             {% if search_query %}<span class="filter-chip">🔍 "{{ search_query }}"</span>{% endif %}
-            {% if current_genre %}<span class="filter-chip">🏷 {{ current_genre }}</span>{% endif %}
-            {% if current_platform %}<span class="filter-chip">🎮 {{ current_platform }}</span>{% endif %}
+            {% for g in selected_genres %}<span class="filter-chip">🏷 {{ g }}</span>{% endfor %}
+            {% for p in selected_platforms %}<span class="filter-chip">🎮 {{ p }}</span>{% endfor %}
             {% if price_min or price_max %}<span class="filter-chip">💰 {{ price_min|default:"0" }}€ — {{ price_max|default:"∞" }}€</span>{% endif %}
             <a href="{% url 'games:home' %}" class="filter-clear-all">Clear all</a>
         </div>
@@ -127,11 +139,8 @@
         <div class="games-grid">
             {% for game in games %}
             <a href="{% url 'games:detail' game.pk %}" class="game-card">
-                <!-- Imagen de fondo -->
                 <img src="{{ game.cover_url }}" alt="{{ game.title }}" class="game-card-img">
-                <!-- Overlay degradado -->
                 <div class="game-card-overlay"></div>
-                <!-- Contenido sobre la imagen -->
                 <div class="game-card-content">
                     <div class="game-card-tags">
                         {% for genre in game.genres.all|slice:":2" %}
@@ -159,11 +168,11 @@
         {% if is_paginated %}
         <div class="pagination-bar">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if current_platform %}&platform={{ current_platform }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="page-btn">← Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% for g in selected_genres %}&genre={{ g }}{% endfor %}{% for p in selected_platforms %}&platform={{ p }}{% endfor %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="page-btn">← Previous</a>
             {% endif %}
             <span class="page-info">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if current_platform %}&platform={{ current_platform }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="page-btn">Next →</a>
+                <a href="?page={{ page_obj.next_page_number }}{% for g in selected_genres %}&genre={{ g }}{% endfor %}{% for p in selected_platforms %}&platform={{ p }}{% endfor %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="page-btn">Next →</a>
             {% endif %}
         </div>
         {% endif %}
