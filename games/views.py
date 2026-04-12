@@ -16,7 +16,7 @@ class GameListView(ListView):
     model = Game
     template_name = 'games/home.html'
     context_object_name = 'games'
-    paginate_by = 12
+    paginate_by = 30
 
     def get_queryset(self):
         qs = Game.objects.all().prefetch_related('platforms', 'availability_set', 'genres')
