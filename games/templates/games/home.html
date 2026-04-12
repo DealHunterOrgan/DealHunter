@@ -146,6 +146,11 @@
                         {% for genre in game.genres.all|slice:":2" %}
                             <span class="game-tag">{{ genre.name }}</span>
                         {% endfor %}
+                        {% if game.score and game.score > 0 %}
+                            <span class="game-score {% if game.score >= 75 %}score-good{% elif game.score >= 50 %}score-mid{% else %}score-bad{% endif %}">
+                                ★ {{ game.score|floatformat:0 }}
+                            </span>
+                        {% endif %}
                     </div>
                     <div class="game-card-bottom">
                         <h3 class="game-card-title">{{ game.title }}</h3>
