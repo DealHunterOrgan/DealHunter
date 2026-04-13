@@ -1,179 +1,107 @@
 {% extends 'games/base.html' %}
-
-{% block title %}Perfil - {{ user.username }}{% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="container-fluid p-0" style="margin-top: -24px; background-color: #121212; min-height: 100vh;">
-    <div class="profile-header py-5 mb-4" style="background: linear-gradient(135deg, #1e1e2e 0%, #111 100%); border-bottom: 2px solid #8e2de2; box-shadow: 0 0 20px rgba(142, 45, 226, 0.2);">
-        <div class="container d-flex align-items-center">
-            <div class="profile-avatar me-4">
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; background: #1a1a1a; border: 3px solid #8e2de2; box-shadow: 0 0 15px rgba(142, 45, 226, 0.5);">
-                    <span style="font-size: 3.5rem;">👤</span>
+<div class="profile-container" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+
+    <div class="profile-header" style="position: relative; background: #121212; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
+        <div class="banner-wrapper" style="height: 200px; position: relative; display: flex; overflow: hidden; background: #1a1a1a;">
+            {% if banner_games %}{% for game in banner_games %}<img src="{{ game.cover_url }}" style="flex:1; height:100%; object-fit:cover; opacity:0.25; filter:blur(1px);">{% endfor %}
+            {% else %}<div style="flex:1; background:linear-gradient(45deg,#1a1a1a,#2a2a2a);"></div>{% endif %}
+            <div style="position:absolute; inset:0; background:linear-gradient(to bottom, transparent, #121212);"></div>
+        </div>
+
+        <div class="header-content" style="padding:0 40px 30px; margin-top:-60px; display:flex; align-items:flex-end; gap:25px; position:relative; z-index:2;">
+            <div class="avatar-wrapper" style="position:relative; width:120px; height:120px; display:flex; align-items:center; justify-content:center;">
+                <div class="neon-fire-ring"></div>
+                <div class="avatar-main" style="width:110px; height:110px; border-radius:50%; overflow:hidden; border:5px solid #121212; z-index:3; background:#222;">
+                    {% if profile.avatar_url %}<img src="{% static 'games/avatars/' %}{{ profile.avatar_url }}" style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}<img src="{% static 'games/avatars/avatar1.png' %}" style="width:100%; height:100%; object-fit:cover;">{% endif %}
                 </div>
             </div>
-            <div>
-                <h1 class="display-6 fw-bold mb-0 text-white">{{ user.username }}</h1>
-                <p class="mb-2 opacity-75 text-light">{{ user.email }}</p>
-                <span class="badge rounded-pill" style="background: rgba(142, 45, 226, 0.2); color: #bb86fc; border: 1px solid #8e2de2;">Verified Hunter</span>
+            <div class="user-details" style="padding-bottom:10px; flex-grow:1;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <h1 style="margin:0; font-size:2.2rem; color:white;">{{ user.username }}</h1>
+                    <div style="display:flex; gap:8px;">
+                        <a href="{% url 'games:edit_account' %}" title="Editar Perfil" class="action-btn">✏️</a>
+                        <a href="{% url 'games:delete_account' %}" title="Borrar Cuenta" class="action-btn trash">🗑️</a>
+                    </div>
+                    <span class="badge-hunter">LVL {{ hunter_level }}</span>
+                </div>
+                <p style="color:#666; margin:5px 0 0 0;">{{ user.email }} • Miembro desde {{ user.date_joined|date:"M Y" }}</p>
             </div>
         </div>
     </div>
 
-    <div class="container pb-5">
-        <div class="row">
-            <div class="col-md-7">
-                <div class="card card-dark mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4 text-purple-neon">Account Information</h5>
-                        <div class="row text-center mb-4">
-                            <div class="col-6 border-end border-secondary">
-                                <small class="text-muted d-block uppercase-tracking">Member since</small>
-                                <span class="fw-bold text-white">{{ user.date_joined|date:"M Y" }}</span>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted d-block uppercase-tracking">Hunter ID</small>
-                                <span class="fw-bold text-white">#{{ user.id }}</span>
-                            </div>
-                        </div>
-                        <div class="list-group list-group-flush bg-transparent">
-                            <div class="list-group-item d-flex justify-content-between px-0 bg-transparent border-secondary">
-                                <span class="text-muted">Username</span>
-                                <span class="fw-bold text-light">{{ user.username }}</span>
-                            </div>
-                            <div class="list-group-item d-flex justify-content-between px-0 bg-transparent border-0">
-                                <span class="text-muted">Email</span>
-                                <span class="fw-bold text-light">{{ user.email }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div style="display:grid; grid-template-columns: 1fr 320px; gap:30px;">
+        <div class="main-content">
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-bottom:30px;">
+                <div class="stat-card"><span class="stat-lbl">💰 Ahorrado</span>{{ total_savings|floatformat:0 }}€</div>
+                <div class="stat-card"><span class="stat-lbl">✍️ Reseñas</span>{{ review_count }}</div>
+                <div class="stat-card"><span class="stat-lbl">🏆 Rango</span>Elite</div>
+            </div>
 
-                <div class="card card-dark mb-4">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4 text-purple-neon">❤️ My Wishlist</h5>
-                        <div class="list-group list-group-flush bg-transparent">
-                            {% for item in user.wishlist_set.all %}
-                                <a href="{% url 'games:detail' item.game.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 bg-transparent border-secondary wishlist-item">
-                                    <span class="fw-bold text-light">{{ item.game.title }}</span>
-                                    <span class="text-purple-neon small">View Deal &rarr;</span>
-                                </a>
-                            {% empty %}
-                                <div class="text-center py-4">
-                                    <p class="text-muted mb-3">Your hunting grounds are empty.</p>
-                                    <a href="{% url 'games:home' %}" class="btn btn-neon-outline">Explore Deals</a>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+                <h2 style="color:white; margin:0;">Mi Wishlist</h2>
+                <div style="display:flex; gap:10px;">
+                    <a href="?sort=discount" class="pill">🔥 Ofertas</a>
+                    <a href="?sort=price_low" class="pill">📉 Precio</a>
+                    <a href="?sort=metacritic" class="pill">⭐ Score</a>
                 </div>
             </div>
 
-            <div class="col-md-5">
-                <div class="card card-dark">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4 text-purple-neon">Management</h5>
-
-                        <a href="{% url 'password_change' %}" class="btn-setting mb-3">
-                            <span>🔑 Change Password</span>
-                            <span class="arrow">→</span>
-                        </a>
-
-                        <a href="{% url 'games:delete_account' %}" class="btn-setting delete mb-4">
-                            <span>🗑️ Delete Account</span>
-                            <span class="arrow">→</span>
-                        </a>
-
-                        <hr class="border-secondary">
-
-                        <form action="{% url 'logout' %}" method="post" class="m-0">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-logout w-100 py-3 fw-bold mt-2">
-                                 Logout
-                            </button>
-                        </form>
-                    </div>
+            <div class="wishlist-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px;">
+                {% for item in wishlist_items %}
+                <div class="wish-card">
+                    <button onclick="alert('🚀 ¡Cazador! Te avisaremos cuando {{ item.game.title }} baje de precio.')" class="bell-btn" title="Alerta de precio">🔔</button>
+                    <a href="{% url 'games:detail' item.game.id %}" style="text-decoration:none;">
+                        <div style="height:240px; overflow:hidden;"><img src="{{ item.game.cover_url }}" style="width:100%; height:100%; object-fit:cover;"></div>
+                        <div style="padding:12px;">
+                            <h4 class="wish-title">{{ item.game.title }}</h4>
+                            <span style="color:#00e676; font-weight:bold;">
+                                {% with best=item.game.availability_set.all|dictsort:"current_price"|first %}{{ best.current_price|default:"--" }}€{% endwith %}
+                            </span>
+                        </div>
+                    </a>
                 </div>
+                {% endfor %}
             </div>
+        </div>
+
+        <div class="sidebar">
+            <h3 style="color:#555; font-size:0.8rem; text-transform:uppercase;">Actividad Reciente</h3>
+            {% for r in latest_reviews %}
+            <div class="rev-card">
+                <div style="color:#7c4dff; font-weight:bold; font-size:0.8rem;">{{ r.game.title }}</div>
+                <p style="color:#bbb; font-size:0.8rem; font-style:italic;">"{{ r.content|truncatechars:60 }}"</p>
+            </div>
+            {% endfor %}
+            <a href="{% url 'games:login' %}" class="logout-btn">Cerrar Sesión</a>
         </div>
     </div>
 </div>
 
 <style>
-    /* VARIABLES Y GENERAL */
-    :root {
-        --purple-neon: #bb86fc;
-        --purple-dark: #8e2de2;
-        --bg-panel: #1e1e2e;
-    }
+.neon-fire-ring { position:absolute; width:125px; height:125px; border-radius:50%; background:linear-gradient(0deg,#7c4dff,#00e676,#ff00de); animation:rotate-fire 3s linear infinite; filter:blur(8px); }
+@keyframes rotate-fire { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
 
-    .text-purple-neon { color: var(--purple-neon); }
-    .uppercase-tracking { text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
+.action-btn { text-decoration:none; background:rgba(255,255,255,0.05); width:35px; height:35px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid rgba(255,255,255,0.1); transition:0.3s; }
+.action-btn:hover { background:rgba(255,255,255,0.15); transform:translateY(-2px); }
+.action-btn.trash:hover { background:rgba(255,82,82,0.2); border-color:#ff5252; }
 
-    /* TARJETAS OSCURAS */
-    .card-dark {
-        background-color: var(--bg-panel);
-        border: 1px solid rgba(142, 45, 226, 0.2);
-        border-radius: 1.2rem;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card-dark:hover {
-        border-color: var(--purple-dark);
-        box-shadow: 0 0 15px rgba(142, 45, 226, 0.1);
-    }
+.bell-btn { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.2); color:white; width:30px; height:30px; border-radius:8px; cursor:pointer; z-index:10; transition:0.3s; }
+.bell-btn:hover { background:#7c4dff; border-color:#00e676; transform:rotate(15deg); }
 
-    /* BOTONES DE CONFIGURACIÓN */
-    .btn-setting {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.2rem;
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: 12px;
-        text-decoration: none;
-        color: #e0e0e0;
-        transition: all 0.3s ease;
-    }
-    .btn-setting:hover {
-        background: rgba(142, 45, 226, 0.1);
-        border-color: var(--purple-dark);
-        color: white;
-    }
-    .btn-setting.delete { color: #ff4757; }
-    .btn-setting.delete:hover { background: rgba(255, 71, 87, 0.1); border-color: #ff4757; }
+.stat-card { background:#1a1a1a; padding:15px; border-radius:15px; text-align:center; color:white; font-weight:bold; }
+.stat-lbl { display:block; font-size:0.6rem; color:#555; text-transform:uppercase; margin-bottom:5px; }
+.wish-card { background:#1a1a1a; border-radius:15px; overflow:hidden; border:1px solid #222; position:relative; transition:0.3s; }
+.wish-card:hover { border-color:#7c4dff; transform:translateY(-5px); }
+.wish-title { color:#eee; margin:0 0 5px 0; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* BOTÓN NEON */
-    .btn-neon-outline {
-        border: 1px solid var(--purple-dark);
-        color: var(--purple-neon);
-        border-radius: 50px;
-        padding: 0.5rem 1.5rem;
-        transition: all 0.3s ease;
-    }
-    .btn-neon-outline:hover {
-        background: var(--purple-dark);
-        color: white;
-        box-shadow: 0 0 10px var(--purple-dark);
-    }
-
-    /* LOGOUT */
-    .btn-logout {
-        background-color: #ff4757;
-        border: none;
-        color: white;
-        border-radius: 12px;
-        transition: opacity 0.3s;
-    }
-    .btn-logout:hover {
-        opacity: 0.8;
-        color: white;
-    }
-
-    /* WISHLIST HOVER */
-    .wishlist-item:hover {
-        background-color: rgba(142, 45, 226, 0.05) !important;
-        padding-left: 10px !important;
-        transition: all 0.3s ease;
-    }
+.pill { padding:5px 12px; background:#1a1a1a; color:#666; border-radius:8px; text-decoration:none; font-size:0.75rem; border:1px solid #333; }
+.pill:hover { background:#333; color:white; border-color:#7c4dff; }
+.rev-card { background:rgba(255,255,255,0.02); padding:12px; border-radius:12px; margin-bottom:10px; }
+.logout-btn { display:block; text-align:center; padding:10px; background:#ff5252; color:white; border-radius:10px; text-decoration:none; margin-top:20px; font-weight:bold; }
+.badge-hunter { background:rgba(0,230,118,0.1); color:#00e676; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:bold; }
 </style>
 {% endblock %}

@@ -126,3 +126,4 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # --- LOGIN / LOGOUT ---
 LOGIN_REDIRECT_URL = 'games:home'
 LOGOUT_REDIRECT_URL = 'games:home'
+
