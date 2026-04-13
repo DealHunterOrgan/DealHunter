@@ -1,15 +1,13 @@
 {% extends 'games/base.html' %}
-
-{% block content %}
+{% load static %} {% block content %}
 <div class="detail-container" style="max-width:1000px; margin:40px auto; padding:20px; display:flex; gap:40px;">
     <div class="detail-image">
         <img src="{{ game.cover_url }}" style="width:320px; border-radius:15px;">
     </div>
 
     <div class="detail-info" style="flex:1;">
-        <h1>{{ game.title }}</h1>
+        <h1 id="game-title-display">{{ game.title }}</h1>
 
-        <!-- Géneros y plataformas -->
         <div style="margin: 12px 0 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             {% for genre in game.genres.all %}
                 <span style="background:#7c4dff; color:white; padding:4px 12px; border-radius:20px; font-size:0.82rem;">{{ genre.name }}</span>
@@ -21,7 +19,6 @@
             {% endfor %}
         </div>
 
-        <!-- Score Metacritic -->
         {% if game.score and game.score > 0 %}
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
             <div>
@@ -42,7 +39,6 @@
         </div>
         {% endif %}
 
-        <!-- Buy card -->
         <div class="buy-card">
             {% if user.is_authenticated %}
                 <p style="font-weight:bold; margin-bottom:12px; color:#eee;">Available deals:</p>
@@ -76,6 +72,19 @@
                 <a href="{% url 'games:login' %}" style="display:block; text-align:center; background:#7c4dff; color:white; padding:15px; border-radius:10px; text-decoration:none; font-weight:700;">Log in to buy</a>
             {% endif %}
         </div>
+
+        <div id="rawg-description-container" style="margin-top:30px; line-height:1.6; color:#ccc; background:rgba(255,255,255,0.02); padding:20px; border-radius:15px;">
+            <h3 style="color:#eee; margin-bottom:10px; font-size:1.1rem;">About the game</h3>
+            <div id="game-description-text">Loading description from RAWG...</div>
+        </div>
     </div>
 </div>
+
+<script src="{% static 'games/game-api.js' %}"></script>
+
+<script>
+    // Usamos el título que viene de Django
+    // El filtro |escapejs es para evitar errores si el título tiene comillas
+    obtenerFichaJuego("{{ game.title|escapejs }}");
+</script>
 {% endblock %}
