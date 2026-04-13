@@ -5,12 +5,15 @@
     #navbar-search { display: none !important; }
 </style>
 
+<!-- Overlay para cerrar sidebar en móvil -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <div class="main-layout">
 
     <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
 
-        <!-- Géneros (checkboxes multi-select) -->
+        <!-- Géneros -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'genres-body')">
                 Categories <span class="arrow">▼</span>
@@ -42,7 +45,7 @@
             </div>
         </div>
 
-        <!-- Plataformas (checkboxes multi-select) -->
+        <!-- Plataformas -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'platforms-body')">
                 Platforms <span class="arrow">▼</span>
@@ -104,6 +107,16 @@
     <!-- ===== CONTENT ===== -->
     <section class="content-area">
 
+        <!-- Botón abrir filtros (solo móvil) -->
+        <button class="filters-toggle-btn" onclick="openSidebar()">
+            ☰ Filters
+            {% if selected_genres or selected_platforms or price_min or price_max %}
+                <span style="background:#7c4dff; color:#fff; border-radius:50%; width:18px; height:18px; font-size:0.7rem; display:inline-flex; align-items:center; justify-content:center;">
+                    {{ selected_genres|length|add:selected_platforms|length }}
+                </span>
+            {% endif %}
+        </button>
+
         <!-- Buscador -->
         <form method="GET" action="{% url 'games:home' %}" class="search-bar-form">
             {% for g in selected_genres %}<input type="hidden" name="genre" value="{{ g }}">{% endfor %}
@@ -135,7 +148,7 @@
         </div>
         {% endif %}
 
-        <!-- Grid de juegos -->
+        <!-- Grid -->
         <div class="games-grid">
             {% for game in games %}
             <a href="{% url 'games:detail' game.pk %}" class="game-card">
@@ -162,11 +175,8 @@
                     <div class="game-card-bottom">
                         <h3 class="game-card-title">{{ game.title }}</h3>
                         {% with price=game.availability_set.first %}
-                            {% if price %}
-                                <span class="game-card-price">{{ price.current_price }}€</span>
-                            {% else %}
-                                <span class="game-card-price-na">—</span>
-                            {% endif %}
+                            {% if price %}<span class="game-card-price">{{ price.current_price }}€</span>
+                            {% else %}<span class="game-card-price-na">—</span>{% endif %}
                         {% endwith %}
                     </div>
                 </div>
@@ -180,7 +190,7 @@
         {% if is_paginated %}
         <div class="pagination-bar">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% for g in selected_genres %}&genre={{ g }}{% endfor %}{% for p in selected_platforms %}&platform={{ p }}{% endfor %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="page-btn">← Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% for g in selected_genres %}&genre={{ g }}{% endfor %}{% for p in selected_platforms %}&platform={{ p }}{% endfor %}{% if search_query %}&q={{ search_query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="page-btn">← Prev</a>
             {% endif %}
             <span class="page-info">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
@@ -198,6 +208,16 @@ function toggleFilter(btn, bodyId) {
     const isOpen = body.style.display !== 'none';
     body.style.display = isOpen ? 'none' : 'block';
     btn.classList.toggle('open', !isOpen);
+}
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebar-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+    document.body.style.overflow = '';
 }
 </script>
 {% endblock %}
