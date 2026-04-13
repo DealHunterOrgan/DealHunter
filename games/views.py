@@ -10,6 +10,7 @@ from django.views import View
 
 from .forms import CustomUserCreationForm
 from .models import Game, Wishlist, Genre, Platform
+from .models import Game, Wishlist, Genre, Platform, Review
 
 
 class GameListView(ListView):
@@ -141,3 +142,17 @@ class ToggleWishlistView(LoginRequiredMixin, View):
         else:
             Wishlist.objects.create(user=request.user, game=game, desired_price=0.00)
         return redirect(request.META.get('HTTP_REFERER', 'games:home'))
+
+
+class AddReviewView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        game = get_object_or_404(Game, pk=pk)
+        content = request.POST.get('content', '').strip()
+
+        if content:
+            Review.objects.create(
+                game=game,
+                user=request.user,
+                content=content
+            )
+        return redirect('games:detail', pk=pk)

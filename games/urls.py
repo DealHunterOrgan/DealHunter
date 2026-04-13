@@ -11,4 +11,7 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('profile/delete/', views.DeleteAccountView.as_view(), name='delete_account'),
     path('wishlist/toggle/<int:pk>/', views.ToggleWishlistView.as_view(), name='toggle_wishlist'),
+
+
+    path('game/<int:pk>/review/', views.AddReviewView.as_view(), name='add_review'),
 ]

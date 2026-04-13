@@ -1,12 +1,14 @@
 {% extends 'games/base.html' %}
-{% load static %} {% block content %}
+{% load static %}
+
+{% block content %}
 <div class="detail-container" style="max-width:1000px; margin:40px auto; padding:20px; display:flex; gap:40px;">
     <div class="detail-image">
-        <img src="{{ game.cover_url }}" style="width:320px; border-radius:15px;">
+        <img src="{{ game.cover_url }}" style="width:320px; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
     </div>
 
     <div class="detail-info" style="flex:1;">
-        <h1 id="game-title-display">{{ game.title }}</h1>
+        <h1 id="game-title-display" style="margin-bottom: 10px;">{{ game.title }}</h1>
 
         <div style="margin: 12px 0 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             {% for genre in game.genres.all %}
@@ -39,7 +41,7 @@
         </div>
         {% endif %}
 
-        <div class="buy-card">
+        <div class="buy-card" style="margin-bottom: 30px;">
             {% if user.is_authenticated %}
                 <p style="font-weight:bold; margin-bottom:12px; color:#eee;">Available deals:</p>
                 {% for deal in game.availability_set.all %}
@@ -73,18 +75,51 @@
             {% endif %}
         </div>
 
-        <div id="rawg-description-container" style="margin-top:30px; line-height:1.6; color:#ccc; background:rgba(255,255,255,0.02); padding:20px; border-radius:15px;">
+        <div id="rawg-description-container" style="margin-top:30px; line-height:1.6; color:#ccc; background:rgba(255,255,255,0.02); padding:20px; border-radius:15px; border: 1px solid rgba(255,255,255,0.05);">
             <h3 style="color:#eee; margin-bottom:10px; font-size:1.1rem;">About the game</h3>
-            <div id="game-description-text">Loading description from RAWG...</div>
+            <div id="game-description-text" style="font-size: 0.95rem;">Loading description from RAWG...</div>
+        </div>
+
+        <div style="margin-top:30px; padding:20px; background:rgba(255,255,255,0.02); border-radius:15px; border:1px solid rgba(255,255,255,0.05);">
+            <h3 style="color:#eee; margin-bottom:20px; font-size:1.1rem;">Community Reviews</h3>
+
+            {% if user.is_authenticated %}
+                <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom:30px;">
+                    {% csrf_token %}
+                    <textarea name="content" required placeholder="What do you think about {{ game.title }}?"
+                        style="width:100%; height:80px; background:rgba(0,0,0,0.2); color:white; border:1px solid #444; border-radius:10px; padding:12px; margin-bottom:10px; resize:none; font-family:inherit;"></textarea>
+                    <div style="text-align:right;">
+                        <button type="submit" style="background:#7c4dff; color:white; border:none; padding:8px 20px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.85rem;">
+                            PUBLISH REVIEW
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <p style="font-size:0.9rem; color:#888; text-align:center; padding:10px; background:rgba(124,77,255,0.05); border-radius:8px;">
+                    Please <a href="{% url 'games:login' %}" style="color:#bb86fc; font-weight:600;">log in</a> to write a review.
+                </p>
+            {% endif %}
+
+            <div class="reviews-list">
+                {% for review in game.reviews.all %}
+                    <div style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span style="color:#bb86fc; font-weight:600; font-size:0.9rem;">@{{ review.user.username }}</span>
+                            <span style="color:#555; font-size:0.75rem;">{{ review.created_at|date:"d M, Y" }}</span>
+                        </div>
+                        <p style="color:#bbb; margin:0; font-size:0.9rem; line-height:1.4;">{{ review.content }}</p>
+                    </div>
+                {% empty %}
+                    <p style="color:#555; font-size:0.9rem; font-style:italic; text-align:center; margin-top:10px;">No reviews yet. Be the first!</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
 
 <script src="{% static 'games/game-api.js' %}"></script>
-
 <script>
-    // Usamos el título que viene de Django
-    // El filtro |escapejs es para evitar errores si el título tiene comillas
+    // Ejecutamos la carga de RAWG al entrar
     obtenerFichaJuego("{{ game.title|escapejs }}");
 </script>
 {% endblock %}
