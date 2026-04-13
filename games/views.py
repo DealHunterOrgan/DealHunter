@@ -76,6 +76,15 @@ class GameListView(ListView):
         context['selected_platforms'] = self.request.GET.getlist('platform')
         context['price_min'] = self.request.GET.get('price_min', '')
         context['price_max'] = self.request.GET.get('price_max', '')
+        context['current_sort'] = self.request.GET.get('sort', '')
+        context['total_count'] = self.get_queryset().count()
+        context['sort_options'] = [
+            ('', 'A → Z'),
+            ('score', '⭐ Best Metacritic'),
+            ('price_asc', '💸 Price: Low to High'),
+            ('price_desc', '💰 Price: High to Low'),
+            ('newest', '📅 Newest'),
+        ]
         context['all_genres'] = (
             Genre.objects
             .annotate(game_count=Count('games', distinct=True))
