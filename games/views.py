@@ -62,7 +62,7 @@ class GameDetailView(DetailView):
             context['is_wishlisted'] = Wishlist.objects.filter(user=self.request.user, game=self.object).exists()
         return context
 
-# --- USUARIO ---
+# --- GESTIÓN DE CUENTA ---
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
@@ -92,6 +92,7 @@ class ToggleWishlistView(LoginRequiredMixin, View):
         else: Wishlist.objects.create(user=request.user, game=game, desired_price=0)
         return redirect('games:detail', pk=pk)
 
+# --- REVIEWS ---
 class AddReviewView(LoginRequiredMixin, View):
     def post(self, request, pk):
         game = get_object_or_404(Game, pk=pk)

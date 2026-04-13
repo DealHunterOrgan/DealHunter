@@ -22,9 +22,14 @@
         <div style="margin-bottom: 15px; color: #ffca28; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
             {% if game.score %}
                 <span>
-                {% if game.score >= 4.5 %} ⭐⭐⭐⭐⭐ {% elif game.score >= 3.5 %} ⭐⭐⭐⭐ {% elif game.score >= 2.5 %} ⭐⭐⭐ {% elif game.score >= 1.5 %} ⭐⭐ {% else %} ⭐ {% endif %}
+                    {% if game.score >= 80 %} ⭐⭐⭐⭐⭐
+                    {% elif game.score >= 60 %} ⭐⭐⭐⭐
+                    {% elif game.score >= 40 %} ⭐⭐⭐
+                    {% elif game.score >= 20 %} ⭐⭐
+                    {% else %} ⭐
+                    {% endif %}
                 </span>
-                <span style="color: #666; font-size: 0.9rem;">({{ game.score }}/5)</span>
+                <span style="color: #666; font-size: 0.9rem;">({{ game.score|floatformat:0 }}/100)</span>
             {% endif %}
         </div>
 
@@ -56,47 +61,58 @@
             {% if user.is_authenticated %}
                 <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom:30px;">
                     {% csrf_token %}
-                    <select name="rating" style="background:#222; color:#ffca28; margin-bottom:10px; border-radius:5px; padding:5px;">
-                        <option value="5">⭐⭐⭐⭐⭐ (5/5)</option><option value="4">⭐⭐⭐⭐ (4/5)</option><option value="3">⭐⭐⭐ (3/5)</option><option value="2">⭐⭐ (2/5)</option><option value="1">⭐ (1/5)</option>
-                    </select>
-                    <textarea name="content" required style="width:100%; height:70px; background:rgba(0,0,0,0.3); color:white; border:1px solid #444; border-radius:10px; padding:12px; margin-bottom:10px;"></textarea>
-                    <div style="text-align:right;"><button type="submit" style="background:#7c4dff; color:white; border:none; padding:8px 25px; border-radius:8px; font-weight:bold;">PUBLISH</button></div>
+                    <div style="margin-bottom:10px;">
+                        <label style="color:#ccc; font-size:0.8rem;">Tu nota:</label>
+                        <select name="rating" style="background:#222; color:#ffca28; border:1px solid #444; padding:5px; border-radius:5px;">
+                            <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
+                        </select>
+                    </div>
+                    <textarea name="content" required placeholder="¿Qué te parece?" style="width:100%; height:70px; background:rgba(0,0,0,0.3); color:white; border:1px solid #444; border-radius:10px; padding:12px; margin-bottom:10px;"></textarea>
+                    <div style="text-align:right;"><button type="submit" style="background:#7c4dff; color:white; border:none; padding:8px 25px; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH</button></div>
                 </form>
             {% endif %}
 
-            {% for review in game.reviews.all %}
-                <div id="review-{{ review.id }}" style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <div style="display:flex; justify-content:space-between;">
-                        <div>
-                            <span style="color:#bb86fc; font-weight:600;">@{{ review.user.username }}</span>
-                            <span style="color:#ffca28; margin-left:10px;">{% if review.rating == 5 %}⭐⭐⭐⭐⭐{% elif review.rating == 4 %}⭐⭐⭐⭐{% elif review.rating == 3 %}⭐⭐⭐{% elif review.rating == 2 %}⭐⭐{% else %}⭐{% endif %}</span>
+            <div class="list">
+                {% for review in game.reviews.all %}
+                    <div id="review-{{ review.id }}" style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; justify-content:space-between;">
+                            <div>
+                                <span style="color:#bb86fc; font-weight:600;">@{{ review.user.username }}</span>
+                                <span style="color:#ffca28; margin-left:10px;">{% if review.rating == 5 %}⭐⭐⭐⭐⭐{% elif review.rating == 4 %}⭐⭐⭐⭐{% elif review.rating == 3 %}⭐⭐⭐{% elif review.rating == 2 %}⭐⭐{% else %}⭐{% endif %}</span>
+                            </div>
+                            {% if review.user == request.user %}
+                            <div>
+                                <button onclick="showEditForm('{{ review.id }}')" style="background:none; border:none; color:#7c4dff; cursor:pointer; font-size:0.8rem;">Edit</button>
+                                <form action="{% url 'games:delete_review' review.id %}" method="POST" style="display:inline;">
+                                    {% csrf_token %}<button type="submit" style="background:none; border:none; color:#ff5252; cursor:pointer; font-size:0.8rem;" onclick="return confirm('Delete review?')">Delete</button>
+                                </form>
+                            </div>
+                            {% endif %}
                         </div>
+                        <p id="text-{{ review.id }}" style="color:#bbb; margin-top:5px; font-size:0.95rem;">{{ review.content }}</p>
+
                         {% if review.user == request.user %}
-                        <div>
-                            <button onclick="showEditForm('{{ review.id }}')" style="background:none; border:none; color:#7c4dff; cursor:pointer; font-size:0.8rem;">Edit</button>
-                            <form action="{% url 'games:delete_review' review.id %}" method="POST" style="display:inline;">
-                                {% csrf_token %}<button type="submit" style="background:none; border:none; color:#ff5252; cursor:pointer; font-size:0.8rem;" onclick="return confirm('Delete?')">Delete</button>
-                            </form>
-                        </div>
+                        <form id="form-{{ review.id }}" action="{% url 'games:edit_review' review.id %}" method="POST" style="display:none; margin-top:10px;">
+                            {% csrf_token %}
+                            <select name="rating" style="background:#111; color:#ffca28; margin-bottom:5px;">
+                                <option value="5" {% if review.rating == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐</option>
+                                <option value="4" {% if review.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐</option>
+                                <option value="3" {% if review.rating == 3 %}selected{% endif %}>⭐⭐⭐</option>
+                                <option value="2" {% if review.rating == 2 %}selected{% endif %}>⭐⭐</option>
+                                <option value="1" {% if review.rating == 1 %}selected{% endif %}>⭐</option>
+                            </select>
+                            <textarea name="content" style="width:100%; background:#1a1a1a; color:white; border:1px solid #444; border-radius:5px; padding:8px;">{{ review.content }}</textarea>
+                            <div style="text-align:right; margin-top:5px;">
+                                <button type="button" onclick="showEditForm('{{ review.id }}')" style="background:none; color:#666; border:none; cursor:pointer;">Cancel</button>
+                                <button type="submit" style="background:#00e676; color:#000; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">Save</button>
+                            </div>
+                        </form>
                         {% endif %}
                     </div>
-                    <p id="text-{{ review.id }}" style="color:#bbb; margin-top:5px;">{{ review.content }}</p>
-                    {% if review.user == request.user %}
-                    <form id="form-{{ review.id }}" action="{% url 'games:edit_review' review.id %}" method="POST" style="display:none; margin-top:10px;">
-                        {% csrf_token %}
-                        <select name="rating" style="background:#111; color:#ffca28; margin-bottom:5px;">
-                            <option value="5" {% if review.rating == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐</option>
-                            <option value="4" {% if review.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐</option>
-                        </select>
-                        <textarea name="content" style="width:100%; background:#1a1a1a; color:white; border:1px solid #444; border-radius:5px; padding:8px;">{{ review.content }}</textarea>
-                        <div style="text-align:right; margin-top:5px;">
-                            <button type="button" onclick="showEditForm('{{ review.id }}')" style="background:none; color:#666; border:none; cursor:pointer;">Cancel</button>
-                            <button type="submit" style="background:#00e676; color:#000; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">Save</button>
-                        </div>
-                    </form>
-                    {% endif %}
-                </div>
-            {% endfor %}
+                {% empty %}
+                    <p style="color:#444; text-align:center;">No reviews yet.</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
