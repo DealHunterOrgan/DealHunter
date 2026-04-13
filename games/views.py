@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.views import View
+from django.db.models import Min
 
 from .forms import CustomUserCreationForm
 from .models import Game, Wishlist, Genre, Platform
@@ -21,29 +22,28 @@ class GameListView(ListView):
 
     def get_queryset(self):
         qs = Game.objects.all().prefetch_related('platforms', 'availability_set', 'genres')
-        q = self.request.GET.get('q', '').strip()
 
-        # Multi-select: getlist devuelve lista de valores
+        # Get parameters
+        q = self.request.GET.get('q', '').strip()
         genres = self.request.GET.getlist('genre')
         platforms = self.request.GET.getlist('platform')
         price_min = self.request.GET.get('price_min')
         price_max = self.request.GET.get('price_max')
+        sort_by = self.request.GET.get('sort')
 
+        # Apply filters
         if q:
             qs = qs.filter(title__icontains=q)
 
-        # Filtrar por múltiples géneros (OR entre ellos)
         if genres:
             qs = qs.filter(genres__name__in=genres)
 
-        # Filtrar por múltiples plataformas (OR entre ellas)
-        # Normalizar "Steam" para incluir tanto "Steam" como "Store 1"
         if platforms:
             normalized = []
             for p in platforms:
                 normalized.append(p)
                 if p == 'Steam':
-                    normalized.append('Store 1')  # datos viejos
+                    normalized.append('Store 1')
             qs = qs.filter(platforms__name__in=normalized)
 
         if price_min:
@@ -51,13 +51,28 @@ class GameListView(ListView):
                 qs = qs.filter(availability__current_price__gte=float(price_min))
             except ValueError:
                 pass
+
         if price_max:
             try:
                 qs = qs.filter(availability__current_price__lte=float(price_max))
             except ValueError:
                 pass
 
-        return qs.distinct().order_by('title')
+        qs = qs.distinct()
+
+        # Apply sorting
+        if sort_by == 'price_asc':
+            qs = qs.annotate(min_price=Min('availability__current_price')).order_by('min_price')
+        elif sort_by == 'price_desc':
+            qs = qs.annotate(min_price=Min('availability__current_price')).order_by('-min_price')
+        elif sort_by == 'score':
+            qs = qs.order_by('-score')
+        elif sort_by == 'newest':
+            qs = qs.order_by('-launch_date')
+        else:
+            qs = qs.order_by('title')
+
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
