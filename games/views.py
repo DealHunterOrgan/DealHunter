@@ -3,17 +3,15 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy  # <--- IMPORTANTE PARA DELETEACCOUNT
 from django.contrib.auth.models import User
-from django.db.models import Count
 from django.views import View
-from django.db.models import Min
+from django.http import HttpResponseForbidden
 
 from .forms import CustomUserCreationForm
-from .models import Game, Wishlist, Genre, Platform
 from .models import Game, Wishlist, Genre, Platform, Review
 
-
+# --- VISTAS DE JUEGOS ---
 class GameListView(ListView):
     model = Game
     template_name = 'games/home.html'
@@ -22,93 +20,15 @@ class GameListView(ListView):
 
     def get_queryset(self):
         qs = Game.objects.all().prefetch_related('platforms', 'availability_set', 'genres')
-
-        # Get parameters
         q = self.request.GET.get('q', '').strip()
-        genres = self.request.GET.getlist('genre')
-        platforms = self.request.GET.getlist('platform')
-        price_min = self.request.GET.get('price_min')
-        price_max = self.request.GET.get('price_max')
-        sort_by = self.request.GET.get('sort')
-
-        # Apply filters
         if q:
             qs = qs.filter(title__icontains=q)
-
-        if genres:
-            qs = qs.filter(genres__name__in=genres)
-
-        if platforms:
-            normalized = []
-            for p in platforms:
-                normalized.append(p)
-                if p == 'Steam':
-                    normalized.append('Store 1')
-            qs = qs.filter(platforms__name__in=normalized)
-
-        if price_min:
-            try:
-                qs = qs.filter(availability__current_price__gte=float(price_min))
-            except ValueError:
-                pass
-
-        if price_max:
-            try:
-                qs = qs.filter(availability__current_price__lte=float(price_max))
-            except ValueError:
-                pass
-
-        qs = qs.distinct()
-
-        # Apply sorting
-        if sort_by == 'price_asc':
-            qs = qs.annotate(min_price=Min('availability__current_price')).order_by('min_price')
-        elif sort_by == 'price_desc':
-            qs = qs.annotate(min_price=Min('availability__current_price')).order_by('-min_price')
-        elif sort_by == 'score':
-            qs = qs.order_by('-score')
-        elif sort_by == 'newest':
-            qs = qs.order_by('-launch_date')
-        else:
-            qs = qs.order_by('title')
-
-        return qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['search_query'] = self.request.GET.get('q', '').strip()
-        context['selected_genres'] = self.request.GET.getlist('genre')
-        context['selected_platforms'] = self.request.GET.getlist('platform')
-        context['price_min'] = self.request.GET.get('price_min', '')
-        context['price_max'] = self.request.GET.get('price_max', '')
-
-        # Géneros con conteo, solo los que tienen juegos
-        context['all_genres'] = (
-            Genre.objects
-            .annotate(game_count=Count('games', distinct=True))
-            .filter(game_count__gt=0)
-            .order_by('name')
-        )
-
-        context['all_platforms'] = (
-            Platform.objects
-            .annotate(game_count=Count('games', distinct=True))
-            .filter(game_count__gt=0)
-            .exclude(name__startswith='Store ')
-            .exclude(name='PC Digital')
-            .order_by('name')
-        )
-
-        return context
-
+        return qs.distinct().order_by('title')
 
 class GameDetailView(DetailView):
     model = Game
     template_name = 'games/detail.html'
     context_object_name = 'game'
-
-    def get_queryset(self):
-        return Game.objects.all().prefetch_related('platforms', 'genres', 'availability_set__shop')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -120,10 +40,9 @@ class GameDetailView(DetailView):
             context['is_wishlisted'] = False
         return context
 
-
+# --- VISTAS DE USUARIO ---
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
-
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
@@ -134,10 +53,8 @@ class SignUpView(CreateView):
         login(self.request, user)
         return redirect('games:home')
 
-
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'registration/profile.html'
-
 
 class DeleteAccountView(LoginRequiredMixin, DeleteView):
     model = User
@@ -147,7 +64,7 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
     def get_object(self, queryset=None):
         return self.request.user
 
-
+# --- VISTAS DE WISHLIST ---
 class ToggleWishlistView(LoginRequiredMixin, View):
     def post(self, request, pk):
         game = get_object_or_404(Game, pk=pk)
@@ -156,18 +73,33 @@ class ToggleWishlistView(LoginRequiredMixin, View):
             wishlist_item.delete()
         else:
             Wishlist.objects.create(user=request.user, game=game, desired_price=0.00)
-        return redirect(request.META.get('HTTP_REFERER', 'games:home'))
+        return redirect('games:detail', pk=pk)
 
-
+# --- VISTAS DE REVIEWS ---
 class AddReviewView(LoginRequiredMixin, View):
     def post(self, request, pk):
         game = get_object_or_404(Game, pk=pk)
         content = request.POST.get('content', '').strip()
-
         if content:
-            Review.objects.create(
-                game=game,
-                user=request.user,
-                content=content
-            )
+            Review.objects.create(game=game, user=request.user, content=content)
         return redirect('games:detail', pk=pk)
+
+class EditReviewView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        if review.user != request.user:
+            return HttpResponseForbidden("No puedes editar esto.")
+        new_content = request.POST.get('content', '').strip()
+        if new_content:
+            review.content = new_content
+            review.save()
+        return redirect('games:detail', pk=review.game.id)
+
+class DeleteReviewView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        if review.user != request.user:
+            return HttpResponseForbidden("No puedes borrar esto.")
+        game_id = review.game.id
+        review.delete()
+        return redirect('games:detail', pk=game_id)

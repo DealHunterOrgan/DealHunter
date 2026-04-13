@@ -2,124 +2,121 @@
 {% load static %}
 
 {% block content %}
-<div class="detail-container" style="max-width:1000px; margin:40px auto; padding:20px; display:flex; gap:40px;">
-    <div class="detail-image">
-        <img src="{{ game.cover_url }}" style="width:320px; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+<div class="detail-container" style="max-width:1100px; margin:40px auto; padding:20px; display:flex; gap:40px; align-items: flex-start;">
+
+    <div class="left-side" style="width:350px; flex-shrink: 0;">
+        <div class="detail-image" style="margin-bottom: 20px;">
+            <img src="{{ game.cover_url }}" style="width:100%; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        </div>
+
+        <div id="rawg-description-container" style="line-height:1.6; color:#ccc; background:rgba(255,255,255,0.02); padding:20px; border-radius:15px; border: 1px solid rgba(255,255,255,0.05);">
+            <h3 style="color:#eee; margin-bottom:10px; font-size:1.1rem;">About the game</h3>
+            <div id="game-description-text" style="font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                Loading description from RAWG...
+            </div>
+            <button id="read-more-btn" onclick="toggleDescription()" style="display: none; background: none; border: none; color: #7c4dff; cursor: pointer; padding: 10px 0; font-weight: bold; font-size: 0.85rem;">
+                Read More
+            </button>
+        </div>
     </div>
 
-    <div class="detail-info" style="flex:1;">
-        <h1 id="game-title-display" style="margin-bottom: 10px;">{{ game.title }}</h1>
+    <div class="right-side" style="flex:1;">
+        <h1 style="margin: 0 0 10px 0; font-size: 2.5rem;">{{ game.title }}</h1>
 
-        <div style="margin: 12px 0 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <div style="margin-bottom: 25px; display: flex; gap: 8px; flex-wrap: wrap;">
             {% for genre in game.genres.all %}
-                <span style="background:#7c4dff; color:white; padding:4px 12px; border-radius:20px; font-size:0.82rem;">{{ genre.name }}</span>
+                <span style="background:#7c4dff; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem;">{{ genre.name }}</span>
             {% endfor %}
             {% for platform in game.platforms.all %}
-                <span style="background:rgba(255,255,255,0.07); color:#bbb; padding:4px 12px; border-radius:20px; font-size:0.82rem; border:1px solid rgba(255,255,255,0.12);">
-                    {{ platform.name }}
-                </span>
+                <span style="background:rgba(255,255,255,0.07); color:#bbb; padding:4px 12px; border-radius:20px; font-size:0.8rem;">{{ platform.name }}</span>
             {% endfor %}
         </div>
 
-        {% if game.score and game.score > 0 %}
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-            <div>
-                <div style="font-size:0.75rem; color:#666; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">Metacritic score</div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:1.5rem; letter-spacing:2px;
-                        color:{% if game.score >= 80 %}#00e676{% elif game.score >= 60 %}#ffc107{% elif game.score >= 40 %}#ff9800{% else %}#ff5252{% endif %};">
-                        {% if game.score >= 80 %}★★★★★
-                        {% elif game.score >= 60 %}★★★★☆
-                        {% elif game.score >= 40 %}★★★☆☆
-                        {% elif game.score >= 20 %}★★☆☆☆
-                        {% else %}★☆☆☆☆
-                        {% endif %}
-                    </span>
-                    <span style="font-size:0.85rem; color:#666;">{{ game.score|floatformat:0 }}/100</span>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="buy-card" style="margin-bottom: 30px;">
-            {% if user.is_authenticated %}
-                <p style="font-weight:bold; margin-bottom:12px; color:#eee;">Available deals:</p>
-                {% for deal in game.availability_set.all %}
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); padding:14px; border-radius:10px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.07);">
-                        <div style="display:flex; align-items:center; gap:10px; min-width:140px;">
-                            {% if deal.shop.logo_url %}
-                                <img src="{{ deal.shop.logo_url }}" alt="{{ deal.shop.name }}"
-                                     style="height:26px; object-fit:contain;"
-                                     onerror="this.style.display='none'">
-                            {% endif %}
-                            <span style="font-size:0.88rem; color:#bbb; font-weight:600;">{{ deal.shop.name }}</span>
-                        </div>
-                        <span style="font-size:1.7rem; font-weight:800; color:#00e676;">{{ deal.current_price }}€</span>
-                        <a href="{{ deal.offer_url }}" target="_blank"
-                           style="background:#00e676; color:#000; padding:9px 18px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; white-space:nowrap;">
-                            BUY NOW
-                        </a>
+        <div class="buy-card" style="margin-bottom: 40px;">
+            <p style="font-weight:bold; margin-bottom:15px; color:#eee; font-size: 1.1rem;">Available deals:</p>
+            {% for deal in game.availability_set.all %}
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); padding:16px; border-radius:12px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08);">
+                    <span style="font-weight:600; color:#ddd;">{{ deal.shop.name }}</span>
+                    <div style="display:flex; align-items:center; gap:20px;">
+                        <span style="font-size:1.8rem; font-weight:800; color:#00e676;">{{ deal.current_price }}€</span>
+                        <a href="{{ deal.offer_url }}" target="_blank" style="background:#00e676; color:#000; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:bold;">BUY NOW</a>
                     </div>
-                {% empty %}
-                    <p style="color:#555;">No deals available right now.</p>
-                {% endfor %}
+                </div>
+            {% empty %}
+                <p style="color:#666;">No deals found.</p>
+            {% endfor %}
 
-                <form action="{% url 'games:toggle_wishlist' game.pk %}" method="POST" style="margin-top:12px;">
-                    {% csrf_token %}
-                    <button type="submit" style="width:100%; padding:11px; border-radius:10px; border:1px solid rgba(124,77,255,0.5); color:#bb86fc; background:none; cursor:pointer; font-size:0.9rem; font-weight:600; transition:all 0.2s;">
-                        {% if is_wishlisted %}❤️ Remove from Wishlist{% else %}🤍 Add to Wishlist{% endif %}
-                    </button>
-                </form>
-            {% else %}
-                <a href="{% url 'games:login' %}" style="display:block; text-align:center; background:#7c4dff; color:white; padding:15px; border-radius:10px; text-decoration:none; font-weight:700;">Log in to buy</a>
+            {% if user.is_authenticated %}
+            <form action="{% url 'games:toggle_wishlist' game.pk %}" method="POST" style="margin-top:15px;">
+                {% csrf_token %}
+                <button type="submit" style="width:100%; padding:12px; border-radius:10px; border:1px solid #7c4dff; color:#bb86fc; background:none; cursor:pointer;">
+                    {% if is_wishlisted %}❤️ Remove from Wishlist{% else %}🤍 Add to Wishlist{% endif %}
+                </button>
+            </form>
             {% endif %}
         </div>
 
-        <div id="rawg-description-container" style="margin-top:30px; line-height:1.6; color:#ccc; background:rgba(255,255,255,0.02); padding:20px; border-radius:15px; border: 1px solid rgba(255,255,255,0.05);">
-            <h3 style="color:#eee; margin-bottom:10px; font-size:1.1rem;">About the game</h3>
-            <div id="game-description-text" style="font-size: 0.95rem;">Loading description from RAWG...</div>
-        </div>
-
-        <div style="margin-top:30px; padding:20px; background:rgba(255,255,255,0.02); border-radius:15px; border:1px solid rgba(255,255,255,0.05);">
-            <h3 style="color:#eee; margin-bottom:20px; font-size:1.1rem;">Community Reviews</h3>
+        <div class="reviews-section" style="background:rgba(255,255,255,0.02); padding:25px; border-radius:15px; border:1px solid rgba(255,255,255,0.05);">
+            <h3 style="margin-bottom:20px;">Community Reviews</h3>
 
             {% if user.is_authenticated %}
                 <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom:30px;">
                     {% csrf_token %}
-                    <textarea name="content" required placeholder="What do you think about {{ game.title }}?"
-                        style="width:100%; height:80px; background:rgba(0,0,0,0.2); color:white; border:1px solid #444; border-radius:10px; padding:12px; margin-bottom:10px; resize:none; font-family:inherit;"></textarea>
-                    <div style="text-align:right;">
-                        <button type="submit" style="background:#7c4dff; color:white; border:none; padding:8px 20px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.85rem;">
-                            PUBLISH REVIEW
-                        </button>
-                    </div>
+                    <textarea name="content" required placeholder="What do you think?" style="width:100%; height:70px; background:rgba(0,0,0,0.3); color:white; border:1px solid #444; border-radius:10px; padding:12px; margin-bottom:10px; resize:none;"></textarea>
+                    <div style="text-align:right;"><button type="submit" style="background:#7c4dff; color:white; border:none; padding:8px 20px; border-radius:8px; cursor:pointer;">PUBLISH</button></div>
                 </form>
-            {% else %}
-                <p style="font-size:0.9rem; color:#888; text-align:center; padding:10px; background:rgba(124,77,255,0.05); border-radius:8px;">
-                    Please <a href="{% url 'games:login' %}" style="color:#bb86fc; font-weight:600;">log in</a> to write a review.
-                </p>
             {% endif %}
 
-            <div class="reviews-list">
-                {% for review in game.reviews.all %}
-                    <div style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                            <span style="color:#bb86fc; font-weight:600; font-size:0.9rem;">@{{ review.user.username }}</span>
-                            <span style="color:#555; font-size:0.75rem;">{{ review.created_at|date:"d M, Y" }}</span>
-                        </div>
-                        <p style="color:#bbb; margin:0; font-size:0.9rem; line-height:1.4;">{{ review.content }}</p>
+            {% for review in game.reviews.all %}
+                <div id="review-{{ review.id }}" style="padding:15px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <span style="color:#bb86fc; font-weight:600;">@{{ review.user.username }}</span>
+                        <span style="color:#555; font-size:0.8rem;">
+                            {{ review.created_at|date:"d M, Y" }}
+                            {% if review.user == request.user %}
+                                <button onclick="showEditForm('{{ review.id }}')" style="background:none; border:none; color:#7c4dff; cursor:pointer; margin-left:10px; font-size:0.75rem;">Edit</button>
+                                <form action="{% url 'games:delete_review' review.id %}" method="POST" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" style="background:none; border:none; color:#ff5252; cursor:pointer; margin-left:5px; font-size:0.75rem;" onclick="return confirm('Delete?')">Delete</button>
+                                </form>
+                            {% endif %}
+                        </span>
                     </div>
-                {% empty %}
-                    <p style="color:#555; font-size:0.9rem; font-style:italic; text-align:center; margin-top:10px;">No reviews yet. Be the first!</p>
-                {% endfor %}
-            </div>
+                    <p id="text-{{ review.id }}" style="color:#bbb; margin:0; font-size:0.95rem;">{{ review.content }}</p>
+
+                    {% if review.user == request.user %}
+                    <form id="form-{{ review.id }}" action="{% url 'games:edit_review' review.id %}" method="POST" style="display:none; margin-top:10px;">
+                        {% csrf_token %}
+                        <textarea name="content" style="width:100%; background:#1a1a1a; color:white; border:1px solid #444; border-radius:5px; padding:8px;">{{ review.content }}</textarea>
+                        <div style="text-align:right; margin-top:5px;">
+                            <button type="button" onclick="showEditForm('{{ review.id }}')" style="background:none; color:#666; border:none; cursor:pointer; font-size:0.8rem;">Cancel</button>
+                            <button type="submit" style="background:#7c4dff; color:white; border:none; padding:4px 12px; border-radius:4px; cursor:pointer; font-size:0.8rem; margin-left:10px;">Save</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
 <script src="{% static 'games/game-api.js' %}"></script>
 <script>
-    // Ejecutamos la carga de RAWG al entrar
     obtenerFichaJuego("{{ game.title|escapejs }}");
+    function toggleDescription() {
+        const text = document.getElementById("game-description-text");
+        const btn = document.getElementById("read-more-btn");
+        if (text.style.display === "-webkit-box") {
+            text.style.display = "block"; btn.innerText = "Show Less";
+        } else {
+            text.style.display = "-webkit-box"; btn.innerText = "Read More";
+        }
+    }
+    function showEditForm(id) {
+        const text = document.getElementById('text-' + id);
+        const form = document.getElementById('form-' + id);
+        form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+        text.style.display = (text.style.display === 'none') ? 'block' : 'none';
+    }
 </script>
 {% endblock %}

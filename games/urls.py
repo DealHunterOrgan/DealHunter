@@ -14,4 +14,6 @@ urlpatterns = [
 
 
     path('game/<int:pk>/review/', views.AddReviewView.as_view(), name='add_review'),
+    path('review/<int:pk>/delete/', views.DeleteReviewView.as_view(), name='delete_review'),
+    path('review/<int:pk>/edit/', views.EditReviewView.as_view(), name='edit_review'),
 ]
