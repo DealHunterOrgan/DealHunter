@@ -15,7 +15,7 @@ async function obtenerFichaJuego(nombreBusqueda) {
         const datosBusqueda = await resBusqueda.json();
 
         if (!datosBusqueda.results || datosBusqueda.results.length === 0) {
-            if (contenedor) contenedor.innerText = "No se encontró información en la base de datos de RAWG.";
+            if (contenedor) contenedor.innerText = "No information found in the RAWG database.";
             return;
         }
 
@@ -25,7 +25,7 @@ async function obtenerFichaJuego(nombreBusqueda) {
         const detalle = await resDetalle.json();
 
         // 4. Extraer la descripción
-        const descripcionFinal = detalle.description || detalle.description_raw || "Descripción no disponible para este título.";
+        const descripcionFinal = detalle.description || detalle.description_raw || "Description not available for this title.";
 
         // 5. Inyectar en el HTML
         if (contenedor) {
@@ -43,11 +43,11 @@ async function obtenerFichaJuego(nombreBusqueda) {
                 }
             }, 100);
 
-            console.log("¡Descripción cargada con éxito!");
+            console.log("Description loaded successfully.");
         }
 
     } catch (error) {
         console.error("Error en la carga:", error);
-        if (contenedor) contenedor.innerText = "Error al conectar con la base de datos de información.";
+        if (contenedor) contenedor.innerText = "Error connecting to the information database.";
     }
 }

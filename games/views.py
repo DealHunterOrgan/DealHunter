@@ -11,10 +11,11 @@ from django.utils import timezone
 
 from .forms import CustomUserCreationForm, EditProfileForm
 from .models import Game, Wishlist, Genre, Platform, Review, Profile
+from .services import get_game_media  # Importamos la función de RAWG
 
 
 # ========================
-# LISTADO PRINCIPAL
+# 1. LISTADO PRINCIPAL (HOME)
 # ========================
 class GameListView(ListView):
     model = Game
@@ -32,78 +33,41 @@ class GameListView(ListView):
         price_max = self.request.GET.get('price_max')
         sort = self.request.GET.get('sort')
 
-        if q:
-            qs = qs.filter(title__icontains=q)
-        if genres:
-            qs = qs.filter(genres__name__in=genres)
-        if platforms:
-            normalized = []
-            for p in platforms:
-                normalized.append(p)
-                if p == 'Steam':
-                    normalized.append('Store 1')
-            qs = qs.filter(platforms__name__in=normalized)
+        if q: qs = qs.filter(title__icontains=q)
+        if genres: qs = qs.filter(genres__name__in=genres).distinct()
+        if platforms: qs = qs.filter(platforms__name__in=platforms).distinct()
+
         if price_min:
-            try:
-                qs = qs.filter(availability__current_price__gte=float(price_min))
-            except ValueError:
-                pass
+            qs = qs.annotate(min_price=Min('availability__current_price')).filter(min_price__gte=price_min)
         if price_max:
-            try:
-                qs = qs.filter(availability__current_price__lte=float(price_max))
-            except ValueError:
-                pass
+            qs = qs.annotate(min_price=Min('availability__current_price')).filter(min_price__lte=price_max)
 
-        qs = qs.distinct()
-
-        if sort == 'score':
-            qs = qs.order_by(F('score').desc(nulls_last=True))
-        elif sort == 'price_asc':
+        if sort == 'price_asc':
             qs = qs.annotate(min_price=Min('availability__current_price')).order_by('min_price')
         elif sort == 'price_desc':
             qs = qs.annotate(min_price=Min('availability__current_price')).order_by('-min_price')
+        elif sort == 'score':
+            qs = qs.order_by('-score')
         elif sort == 'newest':
-            qs = qs.order_by(F('launch_date').desc(nulls_last=True))
-        else:
-            qs = qs.order_by('title')
+            qs = qs.order_by('-launch_date')
 
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['search_query'] = self.request.GET.get('q', '').strip()
+        context['all_genres'] = Genre.objects.all()
+        context['all_platforms'] = Platform.objects.all()
         context['selected_genres'] = self.request.GET.getlist('genre')
         context['selected_platforms'] = self.request.GET.getlist('platform')
+        context['search_query'] = self.request.GET.get('q', '')
         context['price_min'] = self.request.GET.get('price_min', '')
         context['price_max'] = self.request.GET.get('price_max', '')
         context['current_sort'] = self.request.GET.get('sort', '')
-        context['total_count'] = self.get_queryset().count()
-        context['sort_options'] = [
-            ('', 'A → Z'),
-            ('score', '⭐ Best Metacritic'),
-            ('price_asc', '💸 Price: Low to High'),
-            ('price_desc', '💰 Price: High to Low'),
-            ('newest', '📅 Newest'),
-        ]
-        context['all_genres'] = (
-            Genre.objects
-            .annotate(game_count=Count('games', distinct=True))
-            .filter(game_count__gt=0)
-            .order_by('name')
-        )
-        context['all_platforms'] = (
-            Platform.objects
-            .annotate(game_count=Count('games', distinct=True))
-            .filter(game_count__gt=0)
-            .exclude(name__startswith='Store ')
-            .exclude(name='PC Digital')
-            .order_by('name')
-        )
         return context
 
 
 # ========================
-# DETALLE DE JUEGO
+# 2. DETALLE DEL JUEGO (AQUÍ VA EXACTAMENTE)
 # ========================
 class GameDetailView(DetailView):
     model = Game
@@ -111,115 +75,94 @@ class GameDetailView(DetailView):
     context_object_name = 'game'
 
     def get_queryset(self):
+        # Optimizamos la consulta para traer tiendas y géneros de un golpe
         return Game.objects.all().prefetch_related('platforms', 'genres', 'availability_set__shop')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        game = self.get_object()
+
+        # Multimedia desde RAWG (Servicio)
+        context['media'] = get_game_media(game.title)
+
+        # Estado de Wishlist para el usuario actual
         if self.request.user.is_authenticated:
             context['is_wishlisted'] = Wishlist.objects.filter(
-                user=self.request.user, game=self.object
+                user=self.request.user, game=game
             ).exists()
         else:
             context['is_wishlisted'] = False
-        context['reviews'] = Review.objects.filter(game=self.object).select_related('user').order_by('-created_at')
+
+        # Listado de reseñas del juego
+        context['reviews'] = Review.objects.filter(game=game).select_related('user').order_by('-created_at')
+
+        # Ofertas disponibles
+        context['availabilities'] = game.availability_set.all().select_related('shop').order_by('current_price')
+
         return context
 
 
 # ========================
-# PERFIL
+# 3. CUENTAS Y PERFIL
 # ========================
-class ProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'registration/profile.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-        sort = self.request.GET.get('sort', 'newest')
-
-        wishlist_qs = Wishlist.objects.filter(user=user).select_related('game').prefetch_related(
-            'game__availability_set')
-
-        if sort == 'price_low':
-            wishlist_qs = wishlist_qs.order_by('game__availability__current_price').distinct()
-        elif sort == 'metacritic':
-            wishlist_qs = wishlist_qs.order_by(F('game__score').desc(nulls_last=True))
-
-        wishlist_items = list(wishlist_qs)
-
-        context['wishlist_items'] = wishlist_items
-        context['banner_games'] = [item.game for item in wishlist_items[:6]]
-
-        profile, _ = Profile.objects.get_or_create(user=user)
-        context['profile'] = profile
-
-        reviews_qs = Review.objects.filter(user=user).select_related('game').order_by('-created_at')
-        context['review_count'] = reviews_qs.count()
-        context['latest_reviews'] = reviews_qs[:3]
-
-        total_savings = 0
-        for item in wishlist_items:
-            best_offer = item.game.availability_set.aggregate(Min('current_price'))['current_price__min']
-            base_price = getattr(item.game, 'base_price', getattr(item.game, 'price', None))
-            if best_offer and base_price and base_price > best_offer:
-                total_savings += (base_price - best_offer)
-
-        context['total_savings'] = total_savings
-        delta = timezone.now() - user.date_joined
-        context['hunter_level'] = (context['review_count'] * 2) + (delta.days // 30) + 1
-        return context
-
-
-# ========================
-# GESTIÓN DE CUENTAS
-# ========================
-class EditAccountView(LoginRequiredMixin, View):
-    template_name = 'registration/edit_account.html'
-
-    def get(self, request):
-        profile, _ = Profile.objects.get_or_create(user=request.user)
-        form = EditProfileForm(instance=request.user, initial={'avatar': profile.avatar_url})
-        return render(request, self.template_name, {'form': form, 'current_avatar': profile.avatar_url})
-
-    def post(self, request):
-        form = EditProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            user = form.save(commit=False)
-            if form.cleaned_data.get('password'):
-                user.set_password(form.cleaned_data['password'])
-            user.save()
-            profile, _ = Profile.objects.get_or_create(user=user)
-            profile.avatar_url = form.cleaned_data.get('avatar')
-            profile.save()
-            update_session_auth_hash(request, user)
-            return redirect('games:profile')
-        return render(request, self.template_name, {'form': form})
-
-
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
+    success_url = reverse_lazy('login')
     template_name = 'registration/signup.html'
 
     def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        return redirect('games:home')
-
-
-class DeleteAccountView(LoginRequiredMixin, DeleteView):
-    model = User
-    template_name = 'registration/delete_confirm.html'
-    success_url = reverse_lazy('games:home')
-
-    def get_object(self, queryset=None):
-        return self.request.user
+        response = super().form_valid(form)
+        Profile.objects.get_or_create(user=self.object)
+        return response
 
 
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
 
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'registration/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context['wishlist_items'] = Wishlist.objects.filter(user=user).select_related('game')
+        user_reviews = Review.objects.filter(user=user).select_related('game').order_by('-created_at')
+        context['latest_reviews'] = user_reviews[:3]
+
+        context['wish_count'] = context['wishlist_items'].count()
+        context['review_count'] = user_reviews.count()
+
+        profile, created = Profile.objects.get_or_create(user=user)
+        context['profile'] = profile
+        return context
+
+
+class EditAccountView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = EditProfileForm(instance=request.user)
+        return render(request, 'registration/edit_account.html', {'form': form})
+
+    def post(self, request):
+        form = EditProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            return redirect('games:profile')
+        return render(request, 'registration/edit_account.html', {'form': form})
+
+
+class DeleteAccountView(LoginRequiredMixin, DeleteView):
+    model = User
+    template_name = 'games/delete_account_confirm.html'
+    success_url = reverse_lazy('games:home')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+
 # ========================
-# WISHLIST
+# 4. ACCIONES (WISHLIST Y REVIEWS)
 # ========================
 class ToggleWishlistView(LoginRequiredMixin, View):
     def post(self, request, pk):
@@ -229,21 +172,18 @@ class ToggleWishlistView(LoginRequiredMixin, View):
             wish.delete()
         else:
             Wishlist.objects.create(user=request.user, game=game, desired_price=0)
-        return redirect(request.META.get('HTTP_REFERER', 'games:home'))
+
+        referer = request.META.get('HTTP_REFERER', 'games:home')
+        return redirect(referer)
 
 
-# ========================
-# REVIEWS
-# ========================
 class AddReviewView(LoginRequiredMixin, View):
     def post(self, request, pk):
         game = get_object_or_404(Game, pk=pk)
         content = request.POST.get('content', '').strip()
         if content:
             Review.objects.create(
-                game=game,
-                user=request.user,
-                content=content,
+                game=game, user=request.user, content=content,
                 rating=int(request.POST.get('rating', 5))
             )
         return redirect('games:detail', pk=pk)
@@ -255,6 +195,10 @@ class EditReviewView(LoginRequiredMixin, View):
         review.content = request.POST.get('content', review.content).strip()
         review.rating = request.POST.get('rating', review.rating)
         review.save()
+
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'profile' in referer:
+            return redirect('games:profile')
         return redirect('games:detail', pk=review.game.id)
 
 
@@ -263,4 +207,8 @@ class DeleteReviewView(LoginRequiredMixin, View):
         review = get_object_or_404(Review, pk=pk, user=request.user)
         game_id = review.game.id
         review.delete()
+
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'profile' in referer:
+            return redirect('games:profile')
         return redirect('games:detail', pk=game_id)

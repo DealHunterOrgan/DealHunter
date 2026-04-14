@@ -23,13 +23,13 @@ class EditProfileForm(forms.ModelForm):
         choices=AVATAR_CHOICES,
         widget=forms.RadioSelect,
         required=False,
-        label="Selecciona tu Avatar"
+        label="Select your avatar"
     )
 
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Dejar en blanco para no cambiar'}),
+        widget=forms.PasswordInput(attrs={'placeholder': 'Leave blank to keep current password'}),
         required=False,
-        label="Nueva Contraseña"
+        label="New password"
     )
 
     class Meta:

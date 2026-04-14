@@ -8,7 +8,7 @@
     <form method="post">
         {% csrf_token %}
 
-        <label style="color: #666; font-size: 0.7rem; text-transform: uppercase; display: block; margin-bottom: 15px; letter-spacing: 1px;">Selecciona tu Avatar</label>
+        <label style="color: #666; font-size: 0.7rem; text-transform: uppercase; display: block; margin-bottom: 15px; letter-spacing: 1px;">Select your avatar</label>
         <div style="display: flex; justify-content: space-around; margin-bottom: 30px; background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #222;">
             {% for val, name in form.fields.avatar.choices %}
             <label style="cursor: pointer; text-align: center;">
@@ -25,18 +25,18 @@
         </div>
 
         <div style="margin-bottom: 20px;">
-            <label style="color: #666; font-size: 0.7rem; text-transform: uppercase;">Email (No editable)</label>
+            <label style="color: #666; font-size: 0.7rem; text-transform: uppercase;">Email (Read only)</label>
             <input type="text" value="{{ user.email }}" disabled style="width: 100%; padding: 12px; background: #000; border: 1px solid #222; color: #444; border-radius: 12px; margin-top: 5px; cursor: not-allowed;">
         </div>
 
         <div style="margin-bottom: 35px;">
-            <label style="color: #666; font-size: 0.7rem; text-transform: uppercase;">Nueva Contraseña</label>
-            <input type="password" name="password" placeholder="Dejar en blanco para mantener actual" style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 12px; margin-top: 5px;">
+            <label style="color: #666; font-size: 0.7rem; text-transform: uppercase;">New password</label>
+            <input type="password" name="password" placeholder="Leave blank to keep current password" style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 12px; margin-top: 5px;">
         </div>
 
         <div style="display: flex; gap: 15px;">
-            <a href="{% url 'games:profile' %}" style="flex: 1; text-align: center; padding: 15px; background: #222; color: #eee; border-radius: 12px; text-decoration: none; font-weight: bold; border: 1px solid #333;">Cancelar</a>
-            <button type="submit" style="flex: 2; padding: 15px; background: #7c4dff; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s;">GUARDAR CAMBIOS</button>
+            <a href="{% url 'games:profile' %}" style="flex: 1; text-align: center; padding: 15px; background: #222; color: #eee; border-radius: 12px; text-decoration: none; font-weight: bold; border: 1px solid #333;">Cancel</a>
+            <button type="submit" style="flex: 2; padding: 15px; background: #7c4dff; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s;">SAVE CHANGES</button>
         </div>
     </form>
 </div>

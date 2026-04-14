@@ -79,10 +79,19 @@
         <div class="sidebar">
             <h3 style="color:#555; font-size:0.8rem; text-transform:uppercase;">Recent Activity</h3>
             {% for r in latest_reviews %}
-            <div class="rev-card">
-                <div style="color:#7c4dff; font-weight:bold; font-size:0.8rem;">{{ r.game.title }}</div>
-                <p style="color:#bbb; font-size:0.8rem; font-style:italic;">"{{ r.content|truncatechars:60 }}"</p>
+            <div class="rev-card clickable-review" onclick="window.location.href='{% url 'games:detail' r.game.id %}';">
+                <form action="{% url 'games:delete_review' r.id %}" method="POST" onclick="event.stopPropagation();" style="margin:0; display:flex; justify-content:flex-end;">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-review-btn" title="Delete this comment" onclick="return confirm('Delete this comment?')">🗑️</button>
+                </form>
+                <a href="{% url 'games:detail' r.game.id %}" onclick="event.stopPropagation();" style="text-decoration:none; display:block;">
+                    <div style="color:#7c4dff; font-weight:bold; font-size:0.8rem;">{{ r.game.title }}</div>
+                    <p style="color:#bbb; font-size:0.8rem; font-style:italic; margin:6px 0 0;">"{{ r.content|truncatechars:60 }}"</p>
+                    <div style="margin-top:8px; color:#666; font-size:0.72rem;">{{ r.created_at|date:"M d, Y" }}</div>
+                </a>
             </div>
+            {% empty %}
+            <p style="color:#777; font-size:0.85rem;">No comments yet.</p>
             {% endfor %}
 
             <form action="{% url 'games:logout' %}" method="POST" style="margin-top: 20px;">
@@ -115,6 +124,10 @@
 .pill { padding:5px 12px; background:#1a1a1a; color:#666; border-radius:8px; text-decoration:none; font-size:0.75rem; border:1px solid #333; }
 .pill:hover { background:#333; color:white; border-color:#7c4dff; }
 .rev-card { background:rgba(255,255,255,0.02); padding:12px; border-radius:12px; margin-bottom:10px; }
+.clickable-review { cursor:pointer; border:1px solid transparent; transition:0.2s; }
+.clickable-review:hover { border-color:#7c4dff; background:rgba(124,77,255,0.08); }
+.delete-review-btn { background:rgba(255,82,82,0.15); border:1px solid rgba(255,82,82,0.35); color:#ff7b7b; border-radius:8px; width:28px; height:28px; cursor:pointer; font-size:0.8rem; }
+.delete-review-btn:hover { background:rgba(255,82,82,0.25); }
 .logout-btn { display:block; text-align:center; padding:10px; background:#ff5252; color:white; border-radius:10px; text-decoration:none; font-weight:bold; transition: background 0.3s; }
 .logout-btn:hover { background:#d50000; }
 .badge-hunter { background:rgba(0,230,118,0.1); color:#00e676; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:bold; }
