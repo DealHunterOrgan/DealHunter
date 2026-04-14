@@ -57,6 +57,10 @@
             <div class="wishlist-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px;">
                 {% for item in wishlist_items %}
                 <div class="wish-card">
+                    <form action="{% url 'games:toggle_wishlist' item.game.id %}" method="POST" style="position:absolute; top:10px; right:10px; z-index:11;">
+                        {% csrf_token %}
+                        <button type="submit" class="remove-btn" title="Remove from Wishlist" onclick="return confirm('Remove {{ item.game.title|escapejs }} from your wishlist?')">🗑️</button>
+                    </form>
                     <button onclick="alert('🚀 Hunter! We\'ll notify you when {{ item.game.title|escapejs }} drops in price.')" class="bell-btn" title="Price alert">🔔</button>
                     <a href="{% url 'games:detail' item.game.id %}" style="text-decoration:none;">
                         <div style="height:240px; overflow:hidden;"><img src="{{ item.game.cover_url }}" style="width:100%; height:100%; object-fit:cover;"></div>
@@ -97,8 +101,10 @@
 .action-btn:hover { background:rgba(255,255,255,0.15); transform:translateY(-2px); }
 .action-btn.trash:hover { background:rgba(255,82,82,0.2); border-color:#ff5252; }
 
-.bell-btn { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.2); color:white; width:30px; height:30px; border-radius:8px; cursor:pointer; z-index:10; transition:0.3s; }
+.bell-btn { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.2); color:white; width:30px; height:30px; border-radius:8px; cursor:pointer; z-index:10; transition:0.3s; }
 .bell-btn:hover { background:#7c4dff; border-color:#00e676; transform:rotate(15deg); }
+.remove-btn { background:rgba(255,82,82,0.9); border:1px solid rgba(255,255,255,0.15); color:white; width:30px; height:30px; border-radius:8px; cursor:pointer; transition:0.2s; }
+.remove-btn:hover { background:#d50000; transform:translateY(-1px); }
 
 .stat-card { background:#1a1a1a; padding:15px; border-radius:15px; text-align:center; color:white; font-weight:bold; }
 .stat-lbl { display:block; font-size:0.6rem; color:#555; text-transform:uppercase; margin-bottom:5px; }
