@@ -45,31 +45,44 @@
                     <span style="font-weight:600; color:#ddd;">{{ deal.shop.name }}</span>
                     <div style="display:flex; align-items:center; gap:20px;">
                         <span style="font-size:1.8rem; font-weight:800; color:#00e676;">{{ deal.current_price }}€</span>
-                        <a href="{{ deal.offer_url }}" target="_blank" style="background:#00e676; color:#000; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:bold;">BUY NOW</a>
+
+                        {% if user.is_authenticated %}
+                            <a href="{{ deal.offer_url }}" target="_blank" style="background:#00e676; color:#000; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:bold; transition: background 0.3s;">BUY NOW</a>
+                        {% else %}
+                            <a href="{% url 'games:login' %}" title="Log in to view this deal" style="background:#444; color:#888; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:bold; cursor:not-allowed; opacity: 0.7;">BUY NOW 🔒</a>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
+
             {% if user.is_authenticated %}
                 <form action="{% url 'games:toggle_wishlist' game.pk %}" method="POST" style="margin-top:15px;">
                     {% csrf_token %}<button type="submit" style="width:100%; padding:12px; border-radius:10px; border:1px solid #7c4dff; color:#bb86fc; background:none; cursor:pointer;">{% if is_wishlisted %}❤️ Remove from Wishlist{% else %}🤍 Add to Wishlist{% endif %}</button>
                 </form>
+            {% else %}
+                <div style="margin-top:15px;">
+                    <button onclick="window.location.href='{% url 'games:login' %}';" title="Log in to add to Wishlist" style="width:100%; padding:12px; border-radius:10px; border:1px solid #555; color:#888; background:#2a2a2a; cursor:not-allowed; opacity:0.6;">🤍 Log in to Add to Wishlist</button>
+                </div>
             {% endif %}
         </div>
 
         <div class="reviews-section" style="background:rgba(255,255,255,0.02); padding:25px; border-radius:15px; border:1px solid rgba(255,255,255,0.05);">
             <h3 style="margin-bottom:20px;">Community Reviews</h3>
+
             {% if user.is_authenticated %}
                 <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom:30px;">
                     {% csrf_token %}
                     <div style="margin-bottom:10px;">
-                        <label style="color:#ccc; font-size:0.8rem;">Tu nota:</label>
+                        <label style="color:#ccc; font-size:0.8rem;">Your rating:</label>
                         <select name="rating" style="background:#222; color:#ffca28; border:1px solid #444; padding:5px; border-radius:5px;">
                             <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
                         </select>
                     </div>
-                    <textarea name="content" required placeholder="¿Qué te parece?" style="width:100%; height:70px; background:rgba(0,0,0,0.3); color:white; border:1px solid #444; border-radius:10px; padding:12px; margin-bottom:10px;"></textarea>
+                    <textarea name="content" required placeholder="What do you think about this game?" style="width:100%; height:70px; background:rgba(0,0,0,0.3); color:white; border:1px solid #444; border-radius:10px; padding:12px; margin-bottom:10px;"></textarea>
                     <div style="text-align:right;"><button type="submit" style="background:#7c4dff; color:white; border:none; padding:8px 25px; border-radius:8px; font-weight:bold; cursor:pointer;">PUBLISH</button></div>
                 </form>
+            {% else %}
+                <p style="color:#888; font-style:italic; margin-bottom: 30px; text-align: center; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;">Log in to share your thoughts about this game.</p>
             {% endif %}
 
             <div class="list">

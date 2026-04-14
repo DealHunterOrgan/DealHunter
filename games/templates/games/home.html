@@ -9,10 +9,8 @@
 
 <div class="main-layout">
 
-    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
 
-        <!-- Categorías -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'genres-body')">
                 Categories <span class="arrow">▼</span>
@@ -45,7 +43,6 @@
             </div>
         </div>
 
-        <!-- Plataformas -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'platforms-body')">
                 Platforms <span class="arrow">▼</span>
@@ -78,7 +75,6 @@
             </div>
         </div>
 
-        <!-- Precio -->
         <div class="filter-section">
             <button class="filter-toggle" onclick="toggleFilter(this, 'price-body')">
                 Price <span class="arrow">▼</span>
@@ -104,7 +100,6 @@
             </div>
         </div>
 
-        <!-- Sort by (en sidebar) -->
         <div class="filter-section">
             <button class="filter-toggle open" onclick="toggleFilter(this, 'sort-body')">
                 Sort by <span class="arrow">▼</span>
@@ -135,10 +130,8 @@
 
     </aside>
 
-    <!-- ===== CONTENT ===== -->
     <section class="content-area">
 
-        <!-- Botón filtros móvil -->
         <button class="filters-toggle-btn" onclick="openSidebar()">
             ☰ Filters
             {% if selected_genres or selected_platforms or price_min or price_max %}
@@ -146,7 +139,6 @@
             {% endif %}
         </button>
 
-        <!-- Buscador -->
         <form method="GET" action="{% url 'games:home' %}" class="search-bar-form">
             {% for g in selected_genres %}<input type="hidden" name="genre" value="{{ g }}">{% endfor %}
             {% for p in selected_platforms %}<input type="hidden" name="platform" value="{{ p }}">{% endfor %}
@@ -164,7 +156,6 @@
             {% endif %}
         </form>
 
-        <!-- Filtros activos + contador resultados -->
         <div class="results-bar">
             <span class="results-count">
                 Showing <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong> of <strong>{{ total_count }}</strong> games
@@ -183,7 +174,6 @@
         </div>
         {% endif %}
 
-        <!-- Grid -->
         <div class="games-grid">
             {% for game in games %}
             <div class="game-card-wrapper">
@@ -191,7 +181,6 @@
                     <img src="{{ game.cover_url }}" alt="{{ game.title }}" class="game-card-img">
                     <div class="game-card-overlay"></div>
 
-                    <!-- Score badge circular -->
                     {% if game.score and game.score > 0 %}
                     <div class="score-badge {% if game.score >= 75 %}score-green{% elif game.score >= 50 %}score-yellow{% else %}score-red{% endif %}">
                         {{ game.score|floatformat:0 }}
@@ -199,8 +188,7 @@
                     {% endif %}
 
                     <div class="game-card-content">
-                        <!-- Tags arriba -->
-                        <div class="game-card-tags">
+                        <div class="game-card-tags" style="display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100% - 55px); align-items: flex-start;">
                             {% for genre in game.genres.all|slice:":2" %}
                                 <span class="game-tag">{{ genre.name }}</span>
                             {% endfor %}
@@ -209,7 +197,6 @@
                             {% endfor %}
                         </div>
 
-                        <!-- Info abajo -->
                         <div class="game-card-bottom">
                             <h3 class="game-card-title">{{ game.title }}</h3>
                             {% with price=game.availability_set.first %}
@@ -219,17 +206,22 @@
                         </div>
                     </div>
 
-                    <!-- Hover overlay con wishlist -->
-                    {% if user.is_authenticated %}
                     <div class="card-hover-overlay">
+                        {% if user.is_authenticated %}
                         <form action="{% url 'games:toggle_wishlist' game.pk %}" method="POST" onclick="event.stopPropagation();">
                             {% csrf_token %}
                             <button type="submit" class="wishlist-quick-btn" title="Add to Wishlist">
                                 ♥
                             </button>
                         </form>
+                        {% else %}
+                        <div onclick="event.preventDefault(); event.stopPropagation(); window.location.href='{% url 'games:login' %}';">
+                            <button type="button" class="wishlist-quick-btn" title="Log in to add to Wishlist" style="opacity: 0.5; cursor: not-allowed; background: #333; color: #888;">
+                                ♥
+                            </button>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </a>
             </div>
             {% empty %}
@@ -237,7 +229,6 @@
             {% endfor %}
         </div>
 
-        <!-- Paginación -->
         {% if is_paginated %}
         <div class="pagination-bar">
             {% if page_obj.has_previous %}
