@@ -1,4 +1,5 @@
 {% extends 'games/base.html' %}
+{% load game_score_tags %}
 
 {% block content %}
 <style>
@@ -182,8 +183,8 @@
                     <div class="game-card-overlay"></div>
 
                     {% if game.score and game.score > 0 %}
-                    <div class="score-badge {% if game.score >= 75 %}score-green{% elif game.score >= 50 %}score-yellow{% else %}score-red{% endif %}">
-                        {{ game.score|floatformat:0 }}
+                    <div class="score-badge score-stars {{ game.score|score_stars_class }}" title="Metascore {{ game.score|floatformat:0 }}">
+                        {{ game.score|score_to_stars }}
                     </div>
                     {% endif %}
 

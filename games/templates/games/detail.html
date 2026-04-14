@@ -1,5 +1,6 @@
 {% extends 'games/base.html' %}
 {% load static %}
+{% load game_score_tags %}
 
 {% block content %}
 <style>
@@ -78,9 +79,11 @@
 
     <div class="col-center">
         <h1 style="font-size: 2.2rem; margin: 0 0 5px 0; font-weight: 500;">{{ game.title }}</h1>
-        <div style="color: #7c4dff; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;">
-            Metascore: {{ game.score|floatformat:0 }}
+        {% if game.score and game.score > 0 %}
+        <div class="detail-score-stars {{ game.score|score_stars_class }}" title="Metascore {{ game.score|floatformat:0 }}">
+            Metascore: {{ game.score|score_to_stars }}
         </div>
+        {% endif %}
 
         <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
 

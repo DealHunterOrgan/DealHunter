@@ -271,26 +271,40 @@ ul { list-style: none; }
     );
 }
 
-/* Score badge circular */
+/* Metascore en formato estrellas */
 .score-badge {
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     font-weight: 800;
-    border: 2px solid;
+    letter-spacing: 1px;
+    padding: 5px 8px;
+    border: 1px solid;
     z-index: 2;
     backdrop-filter: blur(6px);
+    line-height: 1;
 }
-.score-green  { background: rgba(0,230,118,0.2);  border-color: #00e676; color: #00e676; }
-.score-yellow { background: rgba(255,193,7,0.2);  border-color: #ffc107; color: #ffc107; }
-.score-red    { background: rgba(255,82,82,0.2);   border-color: #ff5252; color: #ff5252; }
+.score-stars { font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif; }
+.score-gold   { background: rgba(255,193,7,0.2); border-color: #ffd54f; color: #ffd54f; }
+.score-yellow { background: rgba(255,167,38,0.2); border-color: #ffb74d; color: #ffb74d; }
+.score-red    { background: rgba(255,82,82,0.2); border-color: #ff5252; color: #ff5252; }
+
+.detail-score-stars {
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid;
+    font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+}
 
 /* Contenido sobre la imagen */
 .game-card-content {
@@ -461,7 +475,7 @@ footer p { color: #2e2e2e; font-size: 0.82rem; }
     .game-card-title { font-size: 0.72rem; }
     .game-card-price { font-size: 0.92rem; }
     .game-tag { font-size: 0.58rem; padding: 2px 5px; }
-    .score-badge { width: 30px; height: 30px; font-size: 0.68rem; top: 6px; right: 6px; }
+    .score-badge { font-size: 0.62rem; letter-spacing: 0.5px; top: 6px; right: 6px; padding: 4px 6px; }
 
     .detail-container { flex-direction: column !important; gap: 18px !important; padding: 12px !important; margin: 12px auto !important; }
     .detail-image img { width: 100% !important; max-width: 260px; display: block; margin: 0 auto; }
