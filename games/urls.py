@@ -1,5 +1,5 @@
 from django.urls import path
-from django.contrib.auth.views import LogoutView  # <-- AFEGEIX AQUESTA IMPORTACIÓ A DALT
+from django.contrib.auth.views import LogoutView
 from . import views
 
 app_name = 'games'
@@ -9,7 +9,7 @@ urlpatterns = [
     path('game/<int:pk>/', views.GameDetailView.as_view(), name='detail'),
     path('wishlist/toggle/<int:pk>/', views.ToggleWishlistView.as_view(), name='toggle_wishlist'),
     path('review/add/<int:pk>/', views.AddReviewView.as_view(), name='add_review'),
-    # path('review/edit/<int:pk>/', views.EditReviewView.as_view(), name='edit_review'),
+    path('review/edit/<int:pk>/', views.EditReviewView.as_view(), name='edit_review'),
     path('review/delete/<int:pk>/', views.DeleteReviewView.as_view(), name='delete_review'),
 
     # Perfil y Cuentas
