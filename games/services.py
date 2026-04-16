@@ -2,7 +2,7 @@ import os
 import requests
 from .models import Game, Genre, Shop, Availability, Platform
 
-RAWG_API_KEY = '0c2a9ea573034836b3c0de9916085843'
+RAWG_API_KEY = os.getenv('RAWG_API_KEY')
 
 # Mapa storeID → nombre de plataforma real
 STORE_PLATFORM_MAP = {
@@ -30,10 +30,20 @@ def get_platform_name(store_id, steam_appid=None):
     return STORE_PLATFORM_MAP.get(store_id, 'Other')
 
 
+def _rawg_url(path, **params):
+    if not RAWG_API_KEY:
+        return None
+    query = "&".join(f"{k}={v}" for k, v in params.items() if v is not None)
+    suffix = f"&{query}" if query else ""
+    return f"https://api.rawg.io/api/{path}?key={RAWG_API_KEY}{suffix}"
+
+
 def get_rawg_id_by_title(title):
     """Busca en RAWG el ID interno usando el nombre limpio."""
     clean_title = title.split(' - ')[0].split(' (')[0]
-    url = f"https://api.rawg.io/api/games?key={RAWG_API_KEY}&search={clean_title}&page_size=1"
+    url = _rawg_url("games", search=clean_title, page_size=1)
+    if not url:
+        return None
     try:
         res = requests.get(url, timeout=5).json()
         if res.get('results'):
@@ -45,6 +55,9 @@ def get_rawg_id_by_title(title):
 
 def get_game_media(game_title):
     """Obtiene descripción, capturas y tráilers."""
+    if not RAWG_API_KEY:
+        return {'screenshots': [], 'trailer': None, 'description': "No description available."}
+
     rawg_id = get_rawg_id_by_title(game_title)
     media = {'screenshots': [], 'trailer': None, 'description': "No description available."}
 
@@ -53,7 +66,7 @@ def get_game_media(game_title):
 
     # 1. Descripción y Datos Generales
     try:
-        det_url = f"https://api.rawg.io/api/games/{rawg_id}?key={RAWG_API_KEY}"
+        det_url = _rawg_url(f"games/{rawg_id}")
         res_det = requests.get(det_url, timeout=5).json()
         media['description'] = res_det.get('description_raw') or res_det.get('description')
     except:
@@ -61,7 +74,7 @@ def get_game_media(game_title):
 
     # 2. Capturas
     try:
-        ss_url = f"https://api.rawg.io/api/games/{rawg_id}/screenshots?key={RAWG_API_KEY}"
+        ss_url = _rawg_url(f"games/{rawg_id}/screenshots")
         res_ss = requests.get(ss_url, timeout=5).json()
         media['screenshots'] = [s['image'] for s in res_ss.get('results', [])[:4]]
     except:
@@ -69,7 +82,7 @@ def get_game_media(game_title):
 
     # 3. Tráiler
     try:
-        mov_url = f"https://api.rawg.io/api/games/{rawg_id}/movies?key={RAWG_API_KEY}"
+        mov_url = _rawg_url(f"games/{rawg_id}/movies")
         res_mov = requests.get(mov_url, timeout=5).json()
         results = res_mov.get('results', [])
         if results:
