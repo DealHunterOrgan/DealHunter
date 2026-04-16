@@ -10,8 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS("Initializing data load from CheapShark API..."))
-
-        # 1. Cargar tiendas
+        
         shops_url = 'https://www.cheapshark.com/api/1.0/stores'
         shop_json = requests.get(shops_url).json()
 
@@ -27,7 +26,6 @@ class Command(BaseCommand):
             )
         self.stdout.write(f"  ✅ {len(shop_json)} shops loaded")
 
-        # 2. Cargar ofertas
         PAGES_TO_DOWNLOAD = 8
 
         total_games = 0
@@ -36,7 +34,6 @@ class Command(BaseCommand):
             offers_json = requests.get(offers_url).json()
 
             for offer in offers_json:
-                # Fecha de lanzamiento
                 if offer.get('releaseDate') and offer['releaseDate'] > 0:
                     correct_date = datetime.fromtimestamp(offer['releaseDate'])
                 else:
@@ -59,12 +56,11 @@ class Command(BaseCommand):
                     }
                 )
 
-                # Asignar plataforma correcta según tienda
+                # Asignar plataforma correcta según la tienda
                 platform_name = get_platform_name(offer['storeID'], steam_appid)
                 p_obj, _ = Platform.objects.get_or_create(name=platform_name)
                 game_obj.platforms.add(p_obj)
 
-                # Géneros
                 update_game_genres(game_obj)
 
                 try:
@@ -74,7 +70,7 @@ class Command(BaseCommand):
                         game=game_obj, shop=shop_obj,
                         defaults={
                             'current_price': offer['salePrice'],
-                            'hist_min_price': offer['salePrice'],
+                            'hist_min_price': offer['normalPrice'],
                             'offer_url': offer_link
                         }
                     )

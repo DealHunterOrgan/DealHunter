@@ -25,6 +25,16 @@ class Game(models.Model):
     def __str__(self):
         return self.title
 
+    def get_best_price(self):
+        best = self.availability_set.order_by('current_price').first()
+        return best.current_price if best else None
+
+    def get_best_discount(self):
+        best = self.availability_set.order_by('current_price').first()
+        if best and best.hist_min_price and best.hist_min_price > 0:
+            return int((1 - (best.current_price / best.hist_min_price)) * 100)
+        return 0
+
 class Shop(models.Model):
     name = models.CharField(max_length=50)
     api_ID = models.CharField(max_length=50, unique=True)
@@ -47,7 +57,6 @@ class Availability(models.Model):
     def __str__(self):
         return f"{self.game.title} en {self.shop.name}"
 
-# --- MODELO RESTAURADO ---
 class Wishlist(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -72,21 +81,9 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.user.username} on {self.game.title}"
 
-# Añade esto a tu models.py
-# models.py
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar_url = models.CharField(max_length=255, default='avatar1.png')
 
     def __str__(self):
         return self.user.username
-
-def get_best_price(self):
-    best = self.availability_set.order_by('current_price').first()
-    return best.current_price if best else None
-
-def get_best_discount(self):
-    best = self.availability_set.order_by('current_price').first()
-    if best and self.base_price and self.base_price > 0:
-        return int((1 - (best.current_price / self.base_price)) * 100)
-    return 0

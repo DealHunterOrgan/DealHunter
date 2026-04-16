@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'games',    # Ours
+    'games',   
 ]
 
 MIDDLEWARE = [
@@ -123,7 +123,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# --- LOGIN / LOGOUT ---
 LOGIN_REDIRECT_URL = 'games:home'
 LOGOUT_REDIRECT_URL = 'games:home'
 

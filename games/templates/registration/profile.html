@@ -4,28 +4,39 @@
 {% block content %}
 <div class="profile-container" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
 
-    <div class="profile-header" style="position: relative; background: #121212; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
+    <div class="profile-header"
+        style="position: relative; background: #121212; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
 
-        <div class="banner-wrapper" style="height: 200px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background: linear-gradient(135deg, #1e1e24 0%, #3a1c71 100%);">
+        <div class="banner-wrapper"
+            style="height: 200px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; background: linear-gradient(135deg, #1e1e24 0%, #3a1c71 100%);">
 
-            <div style="position: absolute; inset: 0; background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 20px 20px;"></div>
+            <div
+                style="position: absolute; inset: 0; background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px); background-size: 20px 20px;">
+            </div>
 
-            <div class="header-content" style="padding: 0 40px; display: flex; align-items: center; gap: 25px; position: relative; z-index: 10; width: 100%; max-width: 1120px;">
+            <div class="header-content"
+                style="padding: 0 40px; display: flex; align-items: center; gap: 25px; position: relative; z-index: 10; width: 100%; max-width: 1120px;">
 
-                <div class="avatar-wrapper" style="position:relative; width:120px; height:120px; display:flex; align-items:center; justify-content:center; flex-shrink: 0;">
+                <div class="avatar-wrapper"
+                    style="position:relative; width:120px; height:120px; display:flex; align-items:center; justify-content:center; flex-shrink: 0;">
                     <div class="neon-fire-ring"></div>
-                    <div class="avatar-main" style="width:110px; height:110px; border-radius:50%; overflow:hidden; border:5px solid #121212; z-index:3; background:#222;">
-                        {% if profile.avatar_url %}<img src="{% static 'games/avatars/' %}{{ profile.avatar_url }}" style="width:100%; height:100%; object-fit:cover;">
-                        {% else %}<img src="{% static 'games/avatars/avatar1.png' %}" style="width:100%; height:100%; object-fit:cover;">{% endif %}
+                    <div class="avatar-main"
+                        style="width:110px; height:110px; border-radius:50%; overflow:hidden; border:5px solid #121212; z-index:3; background:#222;">
+                        {% if profile.avatar_url %}<img src="{% static 'games/avatars/' %}{{ profile.avatar_url }}"
+                            style="width:100%; height:100%; object-fit:cover;">
+                        {% else %}<img src="{% static 'games/avatars/avatar1.png' %}"
+                            style="width:100%; height:100%; object-fit:cover;">{% endif %}
                     </div>
                 </div>
 
-                <div class="user-details" style="flex-grow:1; display: flex; flex-direction: column; justify-content: center;">
+                <div class="user-details"
+                    style="flex-grow:1; display: flex; flex-direction: column; justify-content: center;">
                     <div style="display:flex; align-items:center; gap:15px; margin-bottom: 5px;">
                         <h1 style="margin:0; font-size:2.2rem; color:white; line-height: 1;">{{ user.username }}</h1>
                         <div style="display:flex; gap:8px; align-items: center;">
                             <a href="{% url 'games:edit_account' %}" title="Edit Profile" class="action-btn">✏️</a>
-                            <a href="{% url 'games:delete_account' %}" title="Delete Account" class="action-btn trash">🗑️</a>
+                            <a href="{% url 'games:delete_account' %}" title="Delete Account"
+                                class="action-btn trash">🗑️</a>
                         </div>
                         <span class="badge-hunter">LVL {{ hunter_level }}</span>
                     </div>
@@ -33,7 +44,9 @@
                 </div>
             </div>
 
-            <div style="position:absolute; inset:0; background:linear-gradient(to bottom, transparent, #121212); z-index: 1;"></div>
+            <div
+                style="position:absolute; inset:0; background:linear-gradient(to bottom, transparent, #121212); z-index: 1;">
+            </div>
         </div>
     </div>
 
@@ -54,16 +67,22 @@
                 </div>
             </div>
 
-            <div class="wishlist-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px;">
+            <div class="wishlist-grid"
+                style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px;">
                 {% for item in wishlist_items %}
                 <div class="wish-card">
-                    <form action="{% url 'games:toggle_wishlist' item.game.id %}" method="POST" style="position:absolute; top:10px; right:10px; z-index:11;">
+                    <form action="{% url 'games:toggle_wishlist' item.game.id %}?next=profile" method="POST"
+                        style="position:absolute; top:10px; right:10px; z-index:11;">
                         {% csrf_token %}
-                        <button type="submit" class="remove-btn" title="Remove from Wishlist" onclick="return confirm('Remove {{ item.game.title|escapejs }} from your wishlist?')">🗑️</button>
+                        <button type="submit" class="remove-btn" title="Remove from Wishlist"
+                            onclick="return confirm('Remove {{ item.game.title|escapejs }} from your wishlist?')">🗑️</button>
                     </form>
-                    <button onclick="alert('🚀 Hunter! We\'ll notify you when {{ item.game.title|escapejs }} drops in price.')" class="bell-btn" title="Price alert">🔔</button>
+                    <button
+                        onclick="alert('🚀 Hunter! We\'ll notify you when {{ item.game.title|escapejs }} drops in price.')"
+                        class="bell-btn" title="Price alert">🔔</button>
                     <a href="{% url 'games:detail' item.game.id %}" style="text-decoration:none;">
-                        <div style="height:240px; overflow:hidden;"><img src="{{ item.game.cover_url }}" style="width:100%; height:100%; object-fit:cover;"></div>
+                        <div style="height:240px; overflow:hidden;"><img src="{{ item.game.cover_url }}"
+                                style="width:100%; height:100%; object-fit:cover;"></div>
                         <div style="padding:12px;">
                             <h4 class="wish-title">{{ item.game.title }}</h4>
                             <span style="color:#00e676; font-weight:bold;">
@@ -79,14 +98,20 @@
         <div class="sidebar">
             <h3 style="color:#555; font-size:0.8rem; text-transform:uppercase;">Recent Activity</h3>
             {% for r in latest_reviews %}
-            <div class="rev-card clickable-review" onclick="window.location.href='{% url 'games:detail' r.game.id %}';">
-                <form action="{% url 'games:delete_review' r.id %}" method="POST" onclick="event.stopPropagation();" style="margin:0; display:flex; justify-content:flex-end;">
+            <div class="rev-card clickable-review" onclick="window.location.href=this.dataset.href;"
+                data-href="{% url 'games:detail' r.game.id %}">
+
+                <form action="{% url 'games:delete_review' r.id %}" method="POST" onclick="event.stopPropagation();"
+                    style="margin:0; display:flex; justify-content:flex-end;">
                     {% csrf_token %}
-                    <button type="submit" class="delete-review-btn" title="Delete this comment" onclick="return confirm('Delete this comment?')">🗑️</button>
+                    <button type="submit" class="delete-review-btn" title="Delete this comment"
+                        onclick="return confirm('Delete this comment?')">🗑️</button>
                 </form>
-                <a href="{% url 'games:detail' r.game.id %}" onclick="event.stopPropagation();" style="text-decoration:none; display:block;">
+                <a href="{% url 'games:detail' r.game.id %}" onclick="event.stopPropagation();"
+                    style="text-decoration:none; display:block;">
                     <div style="color:#7c4dff; font-weight:bold; font-size:0.8rem;">{{ r.game.title }}</div>
-                    <p style="color:#bbb; font-size:0.8rem; font-style:italic; margin:6px 0 0;">"{{ r.content|truncatechars:60 }}"</p>
+                    <p style="color:#bbb; font-size:0.8rem; font-style:italic; margin:6px 0 0;">"{{
+                        r.content|truncatechars:60 }}"</p>
                     <div style="margin-top:8px; color:#666; font-size:0.72rem;">{{ r.created_at|date:"M d, Y" }}</div>
                 </a>
             </div>
@@ -96,40 +121,206 @@
 
             <form action="{% url 'games:logout' %}" method="POST" style="margin-top: 20px;">
                 {% csrf_token %}
-                <button type="submit" class="logout-btn" style="width: 100%; border: none; cursor: pointer;">Log Out</button>
+                <button type="submit" class="logout-btn" style="width: 100%; border: none; cursor: pointer;">Log
+                    Out</button>
             </form>
-            </div>
+        </div>
     </div>
 </div>
 
 <style>
-.neon-fire-ring { position:absolute; width:125px; height:125px; border-radius:50%; background:linear-gradient(0deg,#7c4dff,#00e676,#ff00de); animation:rotate-fire 3s linear infinite; filter:blur(8px); }
-@keyframes rotate-fire { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+    .neon-fire-ring {
+        position: absolute;
+        width: 125px;
+        height: 125px;
+        border-radius: 50%;
+        background: linear-gradient(0deg, #7c4dff, #00e676, #ff00de);
+        animation: rotate-fire 3s linear infinite;
+        filter: blur(8px);
+    }
 
-.action-btn { text-decoration:none; background:rgba(255,255,255,0.05); width:35px; height:35px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid rgba(255,255,255,0.1); transition:0.3s; }
-.action-btn:hover { background:rgba(255,255,255,0.15); transform:translateY(-2px); }
-.action-btn.trash:hover { background:rgba(255,82,82,0.2); border-color:#ff5252; }
+    @keyframes rotate-fire {
+        from {
+            transform: rotate(0deg);
+        }
 
-.bell-btn { position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.2); color:white; width:30px; height:30px; border-radius:8px; cursor:pointer; z-index:10; transition:0.3s; }
-.bell-btn:hover { background:#7c4dff; border-color:#00e676; transform:rotate(15deg); }
-.remove-btn { background:rgba(255,82,82,0.9); border:1px solid rgba(255,255,255,0.15); color:white; width:30px; height:30px; border-radius:8px; cursor:pointer; transition:0.2s; }
-.remove-btn:hover { background:#d50000; transform:translateY(-1px); }
+        to {
+            transform: rotate(360deg);
+        }
+    }
 
-.stat-card { background:#1a1a1a; padding:15px; border-radius:15px; text-align:center; color:white; font-weight:bold; }
-.stat-lbl { display:block; font-size:0.6rem; color:#555; text-transform:uppercase; margin-bottom:5px; }
-.wish-card { background:#1a1a1a; border-radius:15px; overflow:hidden; border:1px solid #222; position:relative; transition:0.3s; }
-.wish-card:hover { border-color:#7c4dff; transform:translateY(-5px); }
-.wish-title { color:#eee; margin:0 0 5px 0; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .action-btn {
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.05);
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: 0.3s;
+    }
 
-.pill { padding:5px 12px; background:#1a1a1a; color:#666; border-radius:8px; text-decoration:none; font-size:0.75rem; border:1px solid #333; }
-.pill:hover { background:#333; color:white; border-color:#7c4dff; }
-.rev-card { background:rgba(255,255,255,0.02); padding:12px; border-radius:12px; margin-bottom:10px; }
-.clickable-review { cursor:pointer; border:1px solid transparent; transition:0.2s; }
-.clickable-review:hover { border-color:#7c4dff; background:rgba(124,77,255,0.08); }
-.delete-review-btn { background:rgba(255,82,82,0.15); border:1px solid rgba(255,82,82,0.35); color:#ff7b7b; border-radius:8px; width:28px; height:28px; cursor:pointer; font-size:0.8rem; }
-.delete-review-btn:hover { background:rgba(255,82,82,0.25); }
-.logout-btn { display:block; text-align:center; padding:10px; background:#ff5252; color:white; border-radius:10px; text-decoration:none; font-weight:bold; transition: background 0.3s; }
-.logout-btn:hover { background:#d50000; }
-.badge-hunter { background:rgba(0,230,118,0.1); color:#00e676; padding:4px 10px; border-radius:6px; font-size:0.7rem; font-weight:bold; }
+    .action-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .action-btn.trash:hover {
+        background: rgba(255, 82, 82, 0.2);
+        border-color: #ff5252;
+    }
+
+    .bell-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        z-index: 10;
+        transition: 0.3s;
+    }
+
+    .bell-btn:hover {
+        background: #7c4dff;
+        border-color: #00e676;
+        transform: rotate(15deg);
+    }
+
+    .remove-btn {
+        background: rgba(255, 82, 82, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .remove-btn:hover {
+        background: #d50000;
+        transform: translateY(-1px);
+    }
+
+    .stat-card {
+        background: #1a1a1a;
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    .stat-lbl {
+        display: block;
+        font-size: 0.6rem;
+        color: #555;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .wish-card {
+        background: #1a1a1a;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid #222;
+        position: relative;
+        transition: 0.3s;
+    }
+
+    .wish-card:hover {
+        border-color: #7c4dff;
+        transform: translateY(-5px);
+    }
+
+    .wish-title {
+        color: #eee;
+        margin: 0 0 5px 0;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pill {
+        padding: 5px 12px;
+        background: #1a1a1a;
+        color: #666;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.75rem;
+        border: 1px solid #333;
+    }
+
+    .pill:hover {
+        background: #333;
+        color: white;
+        border-color: #7c4dff;
+    }
+
+    .rev-card {
+        background: rgba(255, 255, 255, 0.02);
+        padding: 12px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+
+    .clickable-review {
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: 0.2s;
+    }
+
+    .clickable-review:hover {
+        border-color: #7c4dff;
+        background: rgba(124, 77, 255, 0.08);
+    }
+
+    .delete-review-btn {
+        background: rgba(255, 82, 82, 0.15);
+        border: 1px solid rgba(255, 82, 82, 0.35);
+        color: #ff7b7b;
+        border-radius: 8px;
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+
+    .delete-review-btn:hover {
+        background: rgba(255, 82, 82, 0.25);
+    }
+
+    .logout-btn {
+        display: block;
+        text-align: center;
+        padding: 10px;
+        background: #ff5252;
+        color: white;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+        background: #d50000;
+    }
+
+    .badge-hunter {
+        background: rgba(0, 230, 118, 0.1);
+        color: #00e676;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}

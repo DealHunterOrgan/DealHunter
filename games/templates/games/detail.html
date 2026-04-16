@@ -4,7 +4,6 @@
 
 {% block content %}
 <style>
-    /* Efecto Amazon: Limitar a 3 líneas */
     .description-content {
         display: -webkit-box;
         -webkit-line-clamp: 3;
@@ -12,9 +11,11 @@
         overflow: hidden;
         transition: all 0.3s ease;
     }
+
     .description-content.expanded {
         -webkit-line-clamp: unset;
     }
+
     .read-more-btn {
         color: #00bbec;
         cursor: pointer;
@@ -26,9 +27,11 @@
         padding: 0;
         font-size: 0.9rem;
     }
+
     .zoomable-image {
         cursor: zoom-in;
     }
+
     .image-modal {
         display: none;
         position: fixed;
@@ -39,9 +42,11 @@
         justify-content: center;
         padding: 30px;
     }
+
     .image-modal.open {
         display: flex;
     }
+
     .image-modal img {
         max-width: min(92vw, 1400px);
         max-height: 86vh;
@@ -49,6 +54,7 @@
         object-fit: contain;
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
     }
+
     .image-modal-close {
         position: fixed;
         top: 18px;
@@ -64,14 +70,19 @@
     }
 </style>
 
-<div class="amazon-layout" style="max-width: 1400px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 400px 1fr 300px; gap: 40px; color: white;">
+<div class="amazon-layout"
+    style="max-width: 1400px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 400px 1fr 300px; gap: 40px; color: white;">
 
     <div class="col-left">
         <div style="position: sticky; top: 20px; border: 1px solid #333; border-radius: 8px; overflow: hidden;">
-            <img src="{{ game.cover_url }}" class="zoomable-image" alt="{{ game.title }} cover" style="width: 100%; display: block;">
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; background: #000; padding: 5px;">
+            <img src="{{ game.cover_url }}" class="zoomable-image" alt="{{ game.title }} cover"
+                style="width: 100%; display: block;">
+            <div
+                style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; background: #000; padding: 5px;">
                 {% for ss in media.screenshots %}
-                <img src="{{ ss }}" class="zoomable-image" alt="Screenshot {{ forloop.counter }}" style="width: 100%; height: 60px; object-fit: cover; opacity: 0.7;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+                <img src="{{ ss }}" class="zoomable-image" alt="Screenshot {{ forloop.counter }}"
+                    style="width: 100%; height: 60px; object-fit: cover; opacity: 0.7;"
+                    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
                 {% endfor %}
             </div>
         </div>
@@ -80,7 +91,8 @@
     <div class="col-center">
         <h1 style="font-size: 2.2rem; margin: 0 0 5px 0; font-weight: 500;">{{ game.title }}</h1>
         {% if game.score and game.score > 0 %}
-        <div class="detail-score-stars {{ game.score|score_stars_class }}" title="Metascore {{ game.score|floatformat:0 }}">
+        <div class="detail-score-stars {{ game.score|score_stars_class }}"
+            title="Metascore {{ game.score|floatformat:0 }}">
             Metascore: {{ game.score|score_to_stars }}
         </div>
         {% endif %}
@@ -88,7 +100,8 @@
         <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
 
         <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #fff;">About this product</h3>
-        <div id="game-description" class="description-content" style="color: #ccc; line-height: 1.5; font-size: 0.95rem;">
+        <div id="game-description" class="description-content"
+            style="color: #ccc; line-height: 1.5; font-size: 0.95rem;">
             {{ media.description|linebreaksbr }}
         </div>
         <button id="toggle-btn" class="read-more-btn" onclick="toggleDescription()">Read more ▼</button>
@@ -104,34 +117,40 @@
     </div>
 
     <div class="col-right">
-        <div style="position: sticky; top: 20px; background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333;">
+        <div
+            style="position: sticky; top: 20px; background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333;">
             <div style="font-size: 1.8rem; font-weight: bold; color: #fff;">{{ availabilities.0.current_price }}€</div>
             <p style="color: #00e676; font-size: 0.9rem; margin: 10px 0;">Instant digital delivery</p>
 
             {% if user.is_authenticated %}
-                <form action="{% url 'games:toggle_wishlist' game.id %}" method="POST" style="margin-top: 20px;">
-                    {% csrf_token %}
-                    <button type="submit" style="width: 100%; background: #7c4dff; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
-                        {% if is_wishlisted %}❤️ Remove from wishlist{% else %}🤍 Add to wishlist{% endif %}
-                    </button>
-                </form>
+            <form action="{% url 'games:toggle_wishlist' game.id %}" method="POST" style="margin-top: 20px;">
+                {% csrf_token %}
+                <button type="submit"
+                    style="width: 100%; background: #7c4dff; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
+                    {% if is_wishlisted %}❤️ Remove from wishlist{% else %}🤍 Add to wishlist{% endif %}
+                </button>
+            </form>
             {% else %}
-                <a href="{% url 'games:login' %}" style="display: block; text-align: center; background: #3b3b3b; color: #aaa; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 20px 0 10px 0;">
-                    🔒 Log in to add to wishlist
-                </a>
+            <a href="{% url 'games:login' %}"
+                style="display: block; text-align: center; background: #3b3b3b; color: #aaa; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 20px 0 10px 0;">
+                🔒 Log in to add to wishlist
+            </a>
             {% endif %}
 
             {% if user.is_authenticated %}
-                <a href="{{ availabilities.0.offer_url }}" target="_blank" style="display: block; text-align: center; background: #ff9900; color: #000; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 10px;">
-                    Buy at {{ availabilities.0.shop.name }}
-                </a>
+            <a href="{{ availabilities.0.offer_url }}" target="_blank"
+                style="display: block; text-align: center; background: #ff9900; color: #000; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 10px;">
+                Buy at {{ availabilities.0.shop.name }}
+            </a>
             {% else %}
-                <a href="{% url 'games:login' %}" style="display: block; text-align: center; background: #3b3b3b; color: #aaa; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 10px;">
-                    🔒 Log in to buy
-                </a>
+            <a href="{% url 'games:login' %}"
+                style="display: block; text-align: center; background: #3b3b3b; color: #aaa; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 10px;">
+                🔒 Log in to buy
+            </a>
             {% endif %}
 
-            <div style="margin-top: 20px; font-size: 0.8rem; color: #777; border-top: 1px solid #333; padding-top: 15px;">
+            <div
+                style="margin-top: 20px; font-size: 0.8rem; color: #777; border-top: 1px solid #333; padding-top: 15px;">
                 Sold by <strong>{{ availabilities.0.shop.name }}</strong>
             </div>
         </div>
@@ -143,40 +162,46 @@
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-top: 20px;">
         <div>
             {% if media.trailer %}
-                <video controls style="width: 100%; border-radius: 12px; border: 1px solid #333;">
-                    <source src="{{ media.trailer }}" type="video/mp4">
-                </video>
+            <video controls style="width: 100%; border-radius: 12px; border: 1px solid #333;">
+                <source src="{{ media.trailer }}" type="video/mp4">
+            </video>
             {% else %}
-                <p style="color: #555;">No trailer available.</p>
+            <p style="color: #555;">No trailer available.</p>
             {% endif %}
         </div>
         <div style="background: #121212; padding: 20px; border-radius: 12px;">
             <h4 style="margin-top: 0;">Comments</h4>
             {% if user.is_authenticated %}
-                <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom: 18px;">
-                    {% csrf_token %}
-                    <select name="rating" style="width: 100%; margin-bottom: 8px; background: #1d1d1d; color: #ffca28; border: 1px solid #333; border-radius: 8px; padding: 8px;">
-                        <option value="5">★★★★★</option>
-                        <option value="4">★★★★☆</option>
-                        <option value="3">★★★☆☆</option>
-                        <option value="2">★★☆☆☆</option>
-                        <option value="1">★☆☆☆☆</option>
-                    </select>
-                    <textarea name="content" required placeholder="Write your comment..." style="width: 100%; min-height: 80px; background: #1d1d1d; color: #ddd; border: 1px solid #333; border-radius: 8px; padding: 10px; resize: vertical;"></textarea>
-                    <button type="submit" style="margin-top: 8px; width: 100%; background: #7c4dff; color: #fff; border: none; border-radius: 8px; padding: 10px; font-weight: 600; cursor: pointer;">Post comment</button>
-                </form>
+            <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom: 18px;">
+                {% csrf_token %}
+                <select name="rating"
+                    style="width: 100%; margin-bottom: 8px; background: #1d1d1d; color: #ffca28; border: 1px solid #333; border-radius: 8px; padding: 8px;">
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★☆</option>
+                    <option value="3">★★★☆☆</option>
+                    <option value="2">★★☆☆☆</option>
+                    <option value="1">★☆☆☆☆</option>
+                </select>
+                <textarea name="content" required placeholder="Write your comment..."
+                    style="width: 100%; min-height: 80px; background: #1d1d1d; color: #ddd; border: 1px solid #333; border-radius: 8px; padding: 10px; resize: vertical;"></textarea>
+                <button type="submit"
+                    style="margin-top: 8px; width: 100%; background: #7c4dff; color: #fff; border: none; border-radius: 8px; padding: 10px; font-weight: 600; cursor: pointer;">Post
+                    comment</button>
+            </form>
             {% else %}
-                <p style="color: #999; margin-bottom: 12px;">Log in to write comments.</p>
-                <a href="{% url 'games:login' %}" style="display: block; text-align: center; background: #2f2f2f; color: #ddd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 600;">Go to login</a>
+            <p style="color: #999; margin-bottom: 12px;">Log in to write comments.</p>
+            <a href="{% url 'games:login' %}"
+                style="display: block; text-align: center; background: #2f2f2f; color: #ddd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 600;">Go
+                to login</a>
             {% endif %}
 
             {% for r in reviews %}
-                <div style="margin-bottom: 15px; font-size: 0.9rem; border-top: 1px solid #222; padding-top: 10px;">
-                    <span style="color: #ffb100;">★ {{ r.rating }}</span> <strong>{{ r.user.username }}</strong>
-                    <p style="color: #999; margin: 5px 0 0 0;">{{ r.content }}</p>
-                </div>
+            <div style="margin-bottom: 15px; font-size: 0.9rem; border-top: 1px solid #222; padding-top: 10px;">
+                <span style="color: #ffb100;">★ {{ r.rating }}</span> <strong>{{ r.user.username }}</strong>
+                <p style="color: #999; margin: 5px 0 0 0;">{{ r.content }}</p>
+            </div>
             {% empty %}
-                <p style="color: #666;">No comments yet.</p>
+            <p style="color: #666;">No comments yet.</p>
             {% endfor %}
         </div>
     </div>

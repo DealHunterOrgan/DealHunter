@@ -4,7 +4,6 @@ from .models import Game, Genre, Shop, Availability, Platform
 
 RAWG_API_KEY = os.getenv('RAWG_API_KEY')
 
-# Mapa storeID → nombre de plataforma real
 STORE_PLATFORM_MAP = {
     '1': 'Steam',
     '2': 'GamersGate',
@@ -64,7 +63,6 @@ def get_game_media(game_title):
     if not rawg_id:
         return media
 
-    # 1. Descripción y Datos Generales
     try:
         det_url = _rawg_url(f"games/{rawg_id}")
         res_det = requests.get(det_url, timeout=5).json()
@@ -72,7 +70,6 @@ def get_game_media(game_title):
     except:
         pass
 
-    # 2. Capturas
     try:
         ss_url = _rawg_url(f"games/{rawg_id}/screenshots")
         res_ss = requests.get(ss_url, timeout=5).json()
@@ -80,7 +77,6 @@ def get_game_media(game_title):
     except:
         pass
 
-    # 3. Tráiler
     try:
         mov_url = _rawg_url(f"games/{rawg_id}/movies")
         res_mov = requests.get(mov_url, timeout=5).json()
