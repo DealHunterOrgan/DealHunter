@@ -38,7 +38,7 @@ def _rawg_url(path, **params):
 
 
 def get_rawg_id_by_title(title):
-    """Busca en RAWG el ID interno usando el nombre limpio."""
+
     clean_title = title.split(' - ')[0].split(' (')[0]
     url = _rawg_url("games", search=clean_title, page_size=1)
     if not url:
@@ -53,7 +53,7 @@ def get_rawg_id_by_title(title):
 
 
 def get_game_media(game_title):
-    """Obtiene descripción, capturas y tráilers."""
+
     if not RAWG_API_KEY:
         return {'screenshots': [], 'trailer': None, 'description': "No description available."}
 

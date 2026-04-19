@@ -7,7 +7,6 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.db.models import Count, Min, F
 from django.views import View
-from django.utils import timezone
 
 from .forms import CustomUserCreationForm, EditProfileForm
 from .models import Game, Wishlist, Genre, Platform, Review, Profile
