@@ -56,7 +56,6 @@ class Command(BaseCommand):
                     }
                 )
 
-                # Asignar plataforma correcta según la tienda
                 platform_name = get_platform_name(offer['storeID'], steam_appid)
                 p_obj, _ = Platform.objects.get_or_create(name=platform_name)
                 game_obj.platforms.add(p_obj)

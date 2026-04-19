@@ -7,4 +7,4 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Iniciando actualización...")
         fetch_cheapshark_deals()
-        self.stdout.write(self.style.SUCCESS("¡Base de datos actualizada con géneros!"))
+        self.stdout.write(self.style.SUCCESS("Base de datos actualizada con géneros"))
