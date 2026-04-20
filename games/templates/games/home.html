@@ -6,6 +6,26 @@
     #navbar-search {
         display: none !important;
     }
+
+    /* AJUSTE 1: Estrellas más pequeñas para que no pisen los géneros */
+    .score-stars {
+        font-size: 0.65rem !important; /* Reducido de 0.8rem o superior */
+        padding: 4px 8px !important;
+        letter-spacing: 1px;
+    }
+
+    /* AJUSTE 2: Color de etiquetas de plataforma para mejor visibilidad */
+    .platform-tag {
+        background-color: #1a1a1a !important; /* Fondo oscuro sólido */
+        color: #00e676 !important; /* Texto verde brillante para contraste */
+        border: 1px solid rgba(0, 230, 118, 0.3) !important;
+        font-weight: bold !important;
+    }
+
+    /* Asegurar que los tags no se amontonen */
+    .game-card-tags {
+        margin-bottom: 4px;
+    }
 </style>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
