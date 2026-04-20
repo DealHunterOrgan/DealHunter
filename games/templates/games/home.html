@@ -9,15 +9,15 @@
 
     /* AJUSTE 1: Estrellas más pequeñas para que no pisen los géneros */
     .score-stars {
-        font-size: 0.65rem !important; /* Reducido de 0.8rem o superior */
+        font-size: 0.65rem !important;
         padding: 4px 8px !important;
         letter-spacing: 1px;
     }
 
     /* AJUSTE 2: Color de etiquetas de plataforma para mejor visibilidad */
     .platform-tag {
-        background-color: #1a1a1a !important; /* Fondo oscuro sólido */
-        color: #00e676 !important; /* Texto verde brillante para contraste */
+        background-color: #1a1a1a !important;
+        color: #00e676 !important;
         border: 1px solid rgba(0, 230, 118, 0.3) !important;
         font-weight: bold !important;
     }
@@ -25,6 +25,21 @@
     /* Asegurar que los tags no se amontonen */
     .game-card-tags {
         margin-bottom: 4px;
+    }
+
+    /* Autocomplete para la Home */
+    .home-autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #1a1828;
+        border: 1px solid #7c4dff;
+        border-radius: 15px;
+        margin-top: 5px;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 </style>
 
@@ -162,15 +177,16 @@
             {% endif %}
         </button>
 
-        <form method="GET" action="{% url 'games:home' %}" class="search-bar-form">
+        <form method="GET" action="{% url 'games:home' %}" class="search-bar-form" autocomplete="off">
             {% for g in selected_genres %}<input type="hidden" name="genre" value="{{ g }}">{% endfor %}
             {% for p in selected_platforms %}<input type="hidden" name="platform" value="{{ p }}">{% endfor %}
             {% if price_min %}<input type="hidden" name="price_min" value="{{ price_min }}">{% endif %}
             {% if price_max %}<input type="hidden" name="price_max" value="{{ price_max }}">{% endif %}
             {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
-            <div class="search-pill">
+            <div class="search-pill" style="position: relative;">
                 <span class="search-icon">🔍</span>
-                <input type="text" name="q" value="{{ search_query }}" placeholder="Search game...">
+                <input type="text" name="q" id="home-search-input" value="{{ search_query }}" placeholder="Search game...">
+                <div id="home-autocomplete-box" class="home-autocomplete autocomplete-results"></div>
             </div>
             <button type="submit" class="search-btn">Search</button>
             {% if search_query %}
@@ -292,5 +308,43 @@
         document.getElementById('sidebar-overlay').classList.remove('open');
         document.body.style.overflow = '';
     }
+
+    // JS específico para el Autocomplete de la Home
+    const homeSearchInput = document.getElementById('home-search-input');
+    const homeAutocompleteBox = document.getElementById('home-autocomplete-box');
+
+    homeSearchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length > 1) {
+            fetch(`/autocomplete/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results.length > 0) {
+                        homeAutocompleteBox.innerHTML = '';
+                        data.results.forEach(game => {
+                            const item = document.createElement('a');
+                            item.href = `/game/${game.id}/`;
+                            item.className = 'autocomplete-item';
+                            item.innerHTML = `
+                                <img src="${game.cover}" alt="" style="width: 30px; height: 40px; margin-right: 10px; border-radius: 4px;">
+                                <span>${game.title}</span>
+                            `;
+                            homeAutocompleteBox.appendChild(item);
+                        });
+                        homeAutocompleteBox.style.display = 'block';
+                    } else {
+                        homeAutocompleteBox.style.display = 'none';
+                    }
+                });
+        } else {
+            homeAutocompleteBox.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!homeSearchInput.contains(e.target) && !homeAutocompleteBox.contains(e.target)) {
+            homeAutocompleteBox.style.display = 'none';
+        }
+    });
 </script>
 {% endblock %}

@@ -7,10 +7,12 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.db.models import Count, Min, F
 from django.views import View
+from django.http import JsonResponse  # Nuevo import para el autocomplete
 
 from .forms import CustomUserCreationForm, EditProfileForm
 from .models import Game, Wishlist, Genre, Platform, Review, Profile
 from .services import get_game_media
+
 
 class GameListView(ListView):
     model = Game
@@ -62,10 +64,10 @@ class GameListView(ListView):
         context['current_sort'] = self.request.GET.get('sort', '')
         context['total_count'] = context['page_obj'].paginator.count
         context['sort_options'] = [
-            ('price_asc',  'Price: Low to High'),
+            ('price_asc', 'Price: Low to High'),
             ('price_desc', 'Price: High to Low'),
-            ('score',      'Best Rated'),
-            ('newest',     'Newest'),
+            ('score', 'Best Rated'),
+            ('newest', 'Newest'),
         ]
         return context
 
@@ -98,14 +100,14 @@ class GameDetailView(DetailView):
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy('games:home') 
+    success_url = reverse_lazy('games:home')
     template_name = 'registration/signup.html'
+
     def form_valid(self, form):
         response = super().form_valid(form)
         Profile.objects.get_or_create(user=self.object)
-        login(self.request, self.object)  
-        return redirect('games:home')      
-
+        login(self.request, self.object)
+        return redirect('games:home')
 
 
 class CustomLoginView(LoginView):
@@ -127,7 +129,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         profile, created = Profile.objects.get_or_create(user=user)
         context['profile'] = profile
-        
+
         total_savings = 0
         for item in context['wishlist_items']:
             best = item.game.availability_set.order_by('current_price').first()
@@ -136,7 +138,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                 if saving > 0:
                     total_savings += saving
         context['total_savings'] = total_savings
-        
+
         activity = context['wish_count'] + context['review_count']
         if activity >= 20:
             hunter_level = 5
@@ -207,7 +209,6 @@ class ToggleWishlistView(LoginRequiredMixin, View):
         return redirect('games:detail', pk=pk)
 
 
-
 class AddReviewView(LoginRequiredMixin, View):
     def post(self, request, pk):
         game = get_object_or_404(Game, pk=pk)
@@ -235,7 +236,6 @@ class EditReviewView(LoginRequiredMixin, View):
 
         review.save()
 
-
         referer = request.META.get('HTTP_REFERER', '')
         if 'profile' in referer:
             return redirect('games:profile')
@@ -252,3 +252,18 @@ class DeleteReviewView(LoginRequiredMixin, View):
         if 'profile' in referer:
             return redirect('games:profile')
         return redirect('games:detail', pk=game_id)
+
+
+# VISTA DE AUTOCOMPLETE (NUEVA)
+def game_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    if len(query) > 1:
+        games = Game.objects.filter(title__icontains=query)[:6]
+        for g in games:
+            results.append({
+                'id': g.id,
+                'title': g.title,
+                'cover': g.cover_url
+            })
+    return JsonResponse({'results': results})

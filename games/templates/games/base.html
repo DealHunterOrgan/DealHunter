@@ -19,6 +19,7 @@
             align-items: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             width: 100%;
+            position: relative; /* Para el desplegable */
         }
 
         .custom-search-input {
@@ -48,6 +49,44 @@
             margin-right: 5px;
         }
 
+        /* Autocomplete Styles (NUEVO) */
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1a1828;
+            border: 1px solid #7c4dff;
+            border-radius: 15px;
+            margin-top: 10px;
+            overflow: hidden;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(124, 77, 255, 0.1);
+            transition: background 0.2s;
+        }
+
+        .autocomplete-item:hover {
+            background: rgba(124, 77, 255, 0.2);
+            color: #bb86fc;
+        }
+
+        .autocomplete-item img {
+            width: 35px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
         /* Navbar Tweaks */
         .navbar {
             background-color: #1a1a1a;
@@ -68,14 +107,15 @@
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <a href="{% url 'games:home' %}" class="logo">🎮 DealHunter</a>
 
-            <div id="navbar-search" style="flex-grow: 1; max-width: 500px; margin: 0 20px;">
-                <form action="{% url 'games:home' %}" method="get">
+            <div id="navbar-search" style="flex-grow: 1; max-width: 500px; margin: 0 20px; position: relative;">
+                <form action="{% url 'games:home' %}" method="get" autocomplete="off">
                     <div class="custom-search-container">
                         <span class="search-icon">🔍</span>
-                        <input type="text" name="q" class="custom-search-input" placeholder="Search anything..." value="{{ search_query }}">
+                        <input type="text" name="q" id="search-input" class="custom-search-input" placeholder="Search anything..." value="{{ search_query }}">
                         <button type="submit" class="custom-search-button">Search</button>
                     </div>
                 </form>
+                <div id="autocomplete-box" class="autocomplete-results"></div>
             </div>
 
             <div class="nav-links">
@@ -97,5 +137,45 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const autocompleteBox = document.getElementById('autocomplete-box');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length > 1) {
+                fetch(`/autocomplete/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.results.length > 0) {
+                            autocompleteBox.innerHTML = '';
+                            data.results.forEach(game => {
+                                const item = document.createElement('a');
+                                item.href = `/game/${game.id}/`;
+                                item.className = 'autocomplete-item';
+                                item.innerHTML = `
+                                    <img src="${game.cover}" alt="">
+                                    <span>${game.title}</span>
+                                `;
+                                autocompleteBox.appendChild(item);
+                            });
+                            autocompleteBox.style.display = 'block';
+                        } else {
+                            autocompleteBox.style.display = 'none';
+                        }
+                    });
+            } else {
+                autocompleteBox.style.display = 'none';
+            }
+        });
+
+        // Cerrar si se hace clic fuera
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !autocompleteBox.contains(e.target)) {
+                autocompleteBox.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

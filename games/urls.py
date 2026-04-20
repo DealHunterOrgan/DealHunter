@@ -18,4 +18,7 @@ urlpatterns = [
     path('signup/', views.SignUpView.as_view(), name='signup'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='games:home'), name='logout'),
+
+    # RUTA PARA AUTOCOMPLETE (NUEVA)
+    path('autocomplete/', views.game_autocomplete, name='autocomplete'),
 ]

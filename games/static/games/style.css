@@ -36,6 +36,19 @@ ul {
     z-index: 100;
 }
 
+/* Estilos de Autocomplete para el CSS centralizado */
+.autocomplete-results {
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    scrollbar-width: thin;
+}
+
+.autocomplete-item span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* ... Resto de tu código CSS original (no cambia nada de lo anterior) ... */
+
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
