@@ -4,85 +4,24 @@
 
 {% block content %}
 <style>
-    .description-content {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .description-content.expanded {
-        -webkit-line-clamp: unset;
-    }
-
-    .read-more-btn {
-        color: #00bbec;
-        cursor: pointer;
-        font-weight: bold;
-        display: inline-block;
-        margin-top: 5px;
-        background: none;
-        border: none;
-        padding: 0;
-        font-size: 0.9rem;
-    }
-
-    .zoomable-image {
-        cursor: zoom-in;
-    }
-
-    .image-modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.92);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-        padding: 30px;
-    }
-
-    .image-modal.open {
-        display: flex;
-    }
-
-    .image-modal img {
-        max-width: min(92vw, 1400px);
-        max-height: 86vh;
-        border-radius: 10px;
-        object-fit: contain;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .image-modal-close {
-        position: fixed;
-        top: 18px;
-        right: 18px;
-        width: 42px;
-        height: 42px;
-        border-radius: 999px;
-        border: 1px solid #555;
-        background: #111;
-        color: #fff;
-        font-size: 1.3rem;
-        cursor: pointer;
-    }
+    .description-content { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.3s ease; }
+    .description-content.expanded { -webkit-line-clamp: unset; }
+    .read-more-btn { color: #00bbec; cursor: pointer; font-weight: bold; display: inline-block; margin-top: 5px; background: none; border: none; padding: 0; font-size: 0.9rem; }
+    .zoomable-image { cursor: zoom-in; }
+    .image-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); z-index: 9999; align-items: center; justify-content: center; padding: 30px; }
+    .image-modal.open { display: flex; }
+    .image-modal img { max-width: min(92vw, 1400px); max-height: 86vh; border-radius: 10px; object-fit: contain; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); }
+    .image-modal-close { position: fixed; top: 18px; right: 18px; width: 42px; height: 42px; border-radius: 999px; border: 1px solid #555; background: #111; color: #fff; font-size: 1.3rem; cursor: pointer; }
 </style>
 
-<div class="amazon-layout"
-    style="max-width: 1400px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 400px 1fr 300px; gap: 40px; color: white;">
+<div class="amazon-layout" style="max-width: 1400px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 400px 1fr 300px; gap: 40px; color: white;">
 
     <div class="col-left">
         <div style="position: sticky; top: 20px; border: 1px solid #333; border-radius: 8px; overflow: hidden;">
-            <img src="{{ game.cover_url }}" class="zoomable-image" alt="{{ game.title }} cover"
-                style="width: 100%; display: block;">
-            <div
-                style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; background: #000; padding: 5px;">
+            <img src="{{ game.cover_url }}" class="zoomable-image" alt="{{ game.title }} cover" style="width: 100%; display: block;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; background: #000; padding: 5px;">
                 {% for ss in media.screenshots %}
-                <img src="{{ ss }}" class="zoomable-image" alt="Screenshot {{ forloop.counter }}"
-                    style="width: 100%; height: 60px; object-fit: cover; opacity: 0.7;"
-                    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+                <img src="{{ ss }}" class="zoomable-image" style="width: 100%; height: 60px; object-fit: cover; opacity: 0.7;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
                 {% endfor %}
             </div>
         </div>
@@ -91,8 +30,7 @@
     <div class="col-center">
         <h1 style="font-size: 2.2rem; margin: 0 0 5px 0; font-weight: 500;">{{ game.title }}</h1>
         {% if game.score and game.score > 0 %}
-        <div class="detail-score-stars {{ game.score|score_stars_class }}"
-            title="Metascore {{ game.score|floatformat:0 }}">
+        <div class="detail-score-stars {{ game.score|score_stars_class }}" title="Metascore {{ game.score|floatformat:0 }}">
             Metascore: {{ game.score|score_to_stars }}
         </div>
         {% endif %}
@@ -100,57 +38,39 @@
         <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
 
         <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #fff;">About this product</h3>
-        <div id="game-description" class="description-content"
-            style="color: #ccc; line-height: 1.5; font-size: 0.95rem;">
+        <div id="game-description" class="description-content" style="color: #ccc; line-height: 1.5; font-size: 0.95rem;">
             {{ media.description|linebreaksbr }}
         </div>
         <button id="toggle-btn" class="read-more-btn" onclick="toggleDescription()">Read more ▼</button>
 
         <div style="margin-top: 25px;">
-            <strong>Categories:</strong>
-            <span style="color: #aaa; margin-left: 10px;">{{ game.genres.all|join:", " }}</span>
+            <strong>Categories:</strong> <span style="color: #aaa; margin-left: 10px;">{{ game.genres.all|join:", " }}</span>
         </div>
         <div style="margin-top: 10px;">
-            <strong>Platforms:</strong>
-            <span style="color: #aaa; margin-left: 10px;">{{ game.platforms.all|join:", " }}</span>
+            <strong>Platforms:</strong> <span style="color: #aaa; margin-left: 10px;">{{ game.platforms.all|join:", " }}</span>
         </div>
     </div>
 
     <div class="col-right">
-        <div
-            style="position: sticky; top: 20px; background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333;">
+        <div style="position: sticky; top: 20px; background: #1a1a1a; padding: 25px; border-radius: 12px; border: 1px solid #333;">
             <div style="font-size: 1.8rem; font-weight: bold; color: #fff;">{{ availabilities.0.current_price }}€</div>
             <p style="color: #00e676; font-size: 0.9rem; margin: 10px 0;">Instant digital delivery</p>
 
             {% if user.is_authenticated %}
             <form action="{% url 'games:toggle_wishlist' game.id %}" method="POST" style="margin-top: 20px;">
                 {% csrf_token %}
-                <button type="submit"
-                    style="width: 100%; background: #7c4dff; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
+                <button type="submit" style="width: 100%; background: #7c4dff; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
                     {% if is_wishlisted %}❤️ Remove from wishlist{% else %}🤍 Add to wishlist{% endif %}
                 </button>
             </form>
-            {% else %}
-            <a href="{% url 'games:login' %}"
-                style="display: block; text-align: center; background: #3b3b3b; color: #aaa; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 20px 0 10px 0;">
-                🔒 Log in to add to wishlist
-            </a>
-            {% endif %}
-
-            {% if user.is_authenticated %}
-            <a href="{{ availabilities.0.offer_url }}" target="_blank"
-                style="display: block; text-align: center; background: #ff9900; color: #000; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 10px;">
+            <a href="{{ availabilities.0.offer_url }}" target="_blank" style="display: block; text-align: center; background: #ff9900; color: #000; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 10px;">
                 Buy at {{ availabilities.0.shop.name }}
             </a>
             {% else %}
-            <a href="{% url 'games:login' %}"
-                style="display: block; text-align: center; background: #3b3b3b; color: #aaa; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 10px;">
-                🔒 Log in to buy
-            </a>
+            <a href="{% url 'games:login' %}" style="display: block; text-align: center; background: #3b3b3b; color: #aaa; padding: 12px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 20px 0;">🔒 Log in to buy</a>
             {% endif %}
 
-            <div
-                style="margin-top: 20px; font-size: 0.8rem; color: #777; border-top: 1px solid #333; padding-top: 15px;">
+            <div style="margin-top: 20px; font-size: 0.8rem; color: #777; border-top: 1px solid #333; padding-top: 15px;">
                 Sold by <strong>{{ availabilities.0.shop.name }}</strong>
             </div>
         </div>
@@ -161,45 +81,70 @@
     <h3 style="color: #7c4dff; border-bottom: 1px solid #333; padding-bottom: 10px;">Additional content</h3>
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-top: 20px;">
         <div>
-            {% if media.trailer %}
-            <video controls style="width: 100%; border-radius: 12px; border: 1px solid #333;">
-                <source src="{{ media.trailer }}" type="video/mp4">
-            </video>
-            {% else %}
-            <p style="color: #555;">No trailer available.</p>
-            {% endif %}
+            {% if media.trailer %}<video controls style="width: 100%; border-radius: 12px; border: 1px solid #333;"><source src="{{ media.trailer }}" type="video/mp4"></video>
+            {% else %}<p style="color: #555;">No trailer available.</p>{% endif %}
         </div>
+
         <div style="background: #121212; padding: 20px; border-radius: 12px;">
             <h4 style="margin-top: 0;">Comments</h4>
             {% if user.is_authenticated %}
-            <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom: 18px;">
+            <form action="{% url 'games:add_review' game.pk %}" method="POST" style="margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 20px;">
                 {% csrf_token %}
-                <select name="rating"
-                    style="width: 100%; margin-bottom: 8px; background: #1d1d1d; color: #ffca28; border: 1px solid #333; border-radius: 8px; padding: 8px;">
-                    <option value="5">★★★★★</option>
-                    <option value="4">★★★★☆</option>
-                    <option value="3">★★★☆☆</option>
-                    <option value="2">★★☆☆☆</option>
-                    <option value="1">★☆☆☆☆</option>
+                <select name="rating" style="width: 100%; margin-bottom: 8px; background: #1d1d1d; color: #ffca28; border: 1px solid #333; border-radius: 8px; padding: 8px;">
+                    <option value="5">★★★★★ (Excellent)</option><option value="4">★★★★☆ (Good)</option><option value="3">★★★☆☆ (Average)</option><option value="2">★★☆☆☆ (Bad)</option><option value="1">★☆☆☆☆ (Terrible)</option>
                 </select>
-                <textarea name="content" required placeholder="Write your comment..."
-                    style="width: 100%; min-height: 80px; background: #1d1d1d; color: #ddd; border: 1px solid #333; border-radius: 8px; padding: 10px; resize: vertical;"></textarea>
-                <button type="submit"
-                    style="margin-top: 8px; width: 100%; background: #7c4dff; color: #fff; border: none; border-radius: 8px; padding: 10px; font-weight: 600; cursor: pointer;">Post
-                    comment</button>
+                <textarea name="content" required placeholder="Write your comment..." style="width: 100%; min-height: 80px; background: #1d1d1d; color: #ddd; border: 1px solid #333; border-radius: 8px; padding: 10px; resize: vertical;"></textarea>
+                <button type="submit" style="margin-top: 8px; width: 100%; background: #7c4dff; color: #fff; border: none; border-radius: 8px; padding: 10px; font-weight: 600; cursor: pointer;">Post comment</button>
             </form>
-            {% else %}
-            <p style="color: #999; margin-bottom: 12px;">Log in to write comments.</p>
-            <a href="{% url 'games:login' %}"
-                style="display: block; text-align: center; background: #2f2f2f; color: #ddd; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 600;">Go
-                to login</a>
             {% endif %}
 
             {% for r in reviews %}
-            <div style="margin-bottom: 15px; font-size: 0.9rem; border-top: 1px solid #222; padding-top: 10px;">
-                <span style="color: #ffb100;">★ {{ r.rating }}</span> <strong>{{ r.user.username }}</strong>
-                <p style="color: #999; margin: 5px 0 0 0;">{{ r.content }}</p>
+            <div id="review-display-{{ r.id }}" style="margin-bottom: 15px; font-size: 0.9rem; border-top: 1px solid #222; padding-top: 10px;">
+    <div style="display:flex; justify-content:space-between; align-items: center;">
+        <div><span style="color: #ffb100;">★ {{ r.rating }}</span> <strong>{{ r.user.username }}</strong></div>
+
+        {% if r.user == user %}
+        <div style="display:flex; gap:12px; align-items: center;">
+            <button onclick="toggleEditReview({{ r.id }})"
+                    style="background:none; border:none; color:#7c4dff; cursor:pointer; font-size:1.1rem; padding:0;"
+                    title="Editar comentario">
+                ✏️
+            </button>
+
+            <form action="{% url 'games:delete_review' r.id %}" method="POST" style="display:inline; margin:0;">
+                {% csrf_token %}
+                <button type="submit"
+                        style="background:none; border:none; color:#ff5252; cursor:pointer; font-size:1.1rem; padding:0;"
+                        onclick="return confirm('¿Eliminar comentario?')"
+                        title="Eliminar comentario">
+                    🗑️
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    <p style="color: #999; margin: 5px 0 0 0;">{{ r.content }}</p>
+</div>
+
+            {% if r.user == user %}
+            <div id="review-edit-{{ r.id }}" style="display:none; margin-bottom: 15px; border-top: 1px solid #7c4dff; padding-top: 10px;">
+                <form action="{% url 'games:edit_review' r.id %}" method="POST">
+                    {% csrf_token %}
+                    <select name="rating" style="width: 100%; margin-bottom: 8px; background: #1d1d1d; color: #ffca28; border: 1px solid #333; border-radius: 8px; padding: 8px;">
+                        <option value="5" {% if r.rating == 5 %}selected{% endif %}>★★★★★</option>
+                        <option value="4" {% if r.rating == 4 %}selected{% endif %}>★★★★☆</option>
+                        <option value="3" {% if r.rating == 3 %}selected{% endif %}>★★★☆☆</option>
+                        <option value="2" {% if r.rating == 2 %}selected{% endif %}>★★☆☆☆</option>
+                        <option value="1" {% if r.rating == 1 %}selected{% endif %}>★☆☆☆☆</option>
+                    </select>
+                    <textarea name="content" required style="width: 100%; min-height: 80px; background: #1d1d1d; color: #ddd; border: 1px solid #333; border-radius: 8px; padding: 10px;">{{ r.content }}</textarea>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button type="submit" style="flex:1; background:#00e676; color:#000; border:none; padding:8px; border-radius:8px; font-weight:bold; cursor:pointer;">Save</button>
+                        <button type="button" onclick="toggleEditReview({{ r.id }})" style="flex:1; background:#333; color:#fff; border:none; padding:8px; border-radius:8px; cursor:pointer;">Cancel</button>
+                    </div>
+                </form>
             </div>
+            {% endif %}
             {% empty %}
             <p style="color: #666;">No comments yet.</p>
             {% endfor %}
@@ -207,41 +152,21 @@
     </div>
 </div>
 
-<div id="image-modal" class="image-modal" aria-hidden="true">
-    <button type="button" class="image-modal-close" id="image-modal-close" aria-label="Close">X</button>
-    <img id="image-modal-preview" src="" alt="Expanded image">
-</div>
+<div id="image-modal" class="image-modal"><button type="button" class="image-modal-close" id="image-modal-close">X</button><img id="image-modal-preview" src=""></div>
 
 <script>
     function toggleDescription() {
-        const desc = document.getElementById('game-description');
-        const btn = document.getElementById('toggle-btn');
-
-        if (desc.classList.contains('expanded')) {
-            desc.classList.remove('expanded');
-            btn.innerText = 'Read more ▼';
-        } else {
-            desc.classList.add('expanded');
-            btn.innerText = 'Read less ▲';
-        }
+        const desc = document.getElementById('game-description'); const btn = document.getElementById('toggle-btn');
+        if (desc.classList.contains('expanded')) { desc.classList.remove('expanded'); btn.innerText = 'Read more ▼'; }
+        else { desc.classList.add('expanded'); btn.innerText = 'Read less ▲'; }
     }
-
-    const modal = document.getElementById('image-modal');
-    const modalImg = document.getElementById('image-modal-preview');
-    const closeModalBtn = document.getElementById('image-modal-close');
-
-    document.querySelectorAll('.zoomable-image').forEach((img) => {
-        img.addEventListener('click', () => {
-            modalImg.src = img.src;
-            modal.classList.add('open');
-            modal.setAttribute('aria-hidden', 'false');
-        });
-    });
-
-    closeModalBtn.addEventListener('click', () => {
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-        modalImg.src = '';
-    });
+    function toggleEditReview(id) {
+        const disp = document.getElementById('review-display-' + id); const edit = document.getElementById('review-edit-' + id);
+        if (edit.style.display === 'none') { edit.style.display = 'block'; disp.style.display = 'none'; }
+        else { edit.style.display = 'none'; disp.style.display = 'block'; }
+    }
+    const modal = document.getElementById('image-modal'); const modalImg = document.getElementById('image-modal-preview');
+    document.querySelectorAll('.zoomable-image').forEach((img) => { img.addEventListener('click', () => { modalImg.src = img.src; modal.classList.add('open'); }); });
+    document.getElementById('image-modal-close').addEventListener('click', () => { modal.classList.remove('open'); });
 </script>
 {% endblock %}

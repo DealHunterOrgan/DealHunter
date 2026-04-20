@@ -101,19 +101,22 @@
             <div class="rev-card clickable-review" onclick="window.location.href=this.dataset.href;"
                 data-href="{% url 'games:detail' r.game.id %}">
 
-                <form action="{% url 'games:delete_review' r.id %}" method="POST" onclick="event.stopPropagation();"
-                    style="margin:0; display:flex; justify-content:flex-end;">
-                    {% csrf_token %}
-                    <button type="submit" class="delete-review-btn" title="Delete this comment"
-                        onclick="return confirm('Delete this comment?')">🗑️</button>
-                </form>
-                <a href="{% url 'games:detail' r.game.id %}" onclick="event.stopPropagation();"
-                    style="text-decoration:none; display:block;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                     <div style="color:#7c4dff; font-weight:bold; font-size:0.8rem;">{{ r.game.title }}</div>
-                    <p style="color:#bbb; font-size:0.8rem; font-style:italic; margin:6px 0 0;">"{{
-                        r.content|truncatechars:60 }}"</p>
-                    <div style="margin-top:8px; color:#666; font-size:0.72rem;">{{ r.created_at|date:"M d, Y" }}</div>
-                </a>
+                    <form action="{% url 'games:delete_review' r.id %}" method="POST" onclick="event.stopPropagation();"
+                        style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-review-btn" title="Delete comment"
+                            onclick="return confirm('Delete this comment?')">🗑️</button>
+                    </form>
+                </div>
+
+                <p style="color:#bbb; font-size:0.8rem; font-style:italic; margin:0;">"{{ r.content|truncatechars:60 }}"</p>
+
+                <div style="margin-top:8px; color:#666; font-size:0.72rem; display:flex; justify-content:space-between;">
+                    <span>{{ r.created_at|date:"M d, Y" }}</span>
+                    <span style="color:#ffb100;">★ {{ r.rating }}</span>
+                </div>
             </div>
             {% empty %}
             <p style="color:#777; font-size:0.85rem;">No comments yet.</p>
@@ -121,8 +124,7 @@
 
             <form action="{% url 'games:logout' %}" method="POST" style="margin-top: 20px;">
                 {% csrf_token %}
-                <button type="submit" class="logout-btn" style="width: 100%; border: none; cursor: pointer;">Log
-                    Out</button>
+                <button type="submit" class="logout-btn" style="width: 100%; border: none; cursor: pointer;">Log Out</button>
             </form>
         </div>
     </div>
@@ -130,197 +132,45 @@
 
 <style>
     .neon-fire-ring {
-        position: absolute;
-        width: 125px;
-        height: 125px;
-        border-radius: 50%;
+        position: absolute; width: 125px; height: 125px; border-radius: 50%;
         background: linear-gradient(0deg, #7c4dff, #00e676, #ff00de);
-        animation: rotate-fire 3s linear infinite;
-        filter: blur(8px);
+        animation: rotate-fire 3s linear infinite; filter: blur(8px);
     }
-
-    @keyframes rotate-fire {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
+    @keyframes rotate-fire { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .action-btn {
-        text-decoration: none;
-        background: rgba(255, 255, 255, 0.05);
-        width: 35px;
-        height: 35px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: 0.3s;
+        text-decoration: none; background: rgba(255, 255, 255, 0.05); width: 35px; height: 35px;
+        display: flex; align-items: center; justify-content: center; border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.3s;
     }
-
-    .action-btn:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-    }
-
-    .action-btn.trash:hover {
-        background: rgba(255, 82, 82, 0.2);
-        border-color: #ff5252;
-    }
-
+    .action-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
+    .action-btn.trash:hover { background: rgba(255, 82, 82, 0.2); border-color: #ff5252; }
     .bell-btn {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-        cursor: pointer;
-        z-index: 10;
-        transition: 0.3s;
+        position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2); color: white; width: 30px; height: 30px;
+        border-radius: 8px; cursor: pointer; z-index: 10; transition: 0.3s;
     }
-
-    .bell-btn:hover {
-        background: #7c4dff;
-        border-color: #00e676;
-        transform: rotate(15deg);
-    }
-
+    .bell-btn:hover { background: #7c4dff; border-color: #00e676; transform: rotate(15deg); }
     .remove-btn {
-        background: rgba(255, 82, 82, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: 0.2s;
+        background: rgba(255, 82, 82, 0.9); border: 1px solid rgba(255, 255, 255, 0.15);
+        color: white; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; transition: 0.2s;
     }
-
-    .remove-btn:hover {
-        background: #d50000;
-        transform: translateY(-1px);
-    }
-
-    .stat-card {
-        background: #1a1a1a;
-        padding: 15px;
-        border-radius: 15px;
-        text-align: center;
-        color: white;
-        font-weight: bold;
-    }
-
-    .stat-lbl {
-        display: block;
-        font-size: 0.6rem;
-        color: #555;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-    }
-
-    .wish-card {
-        background: #1a1a1a;
-        border-radius: 15px;
-        overflow: hidden;
-        border: 1px solid #222;
-        position: relative;
-        transition: 0.3s;
-    }
-
-    .wish-card:hover {
-        border-color: #7c4dff;
-        transform: translateY(-5px);
-    }
-
-    .wish-title {
-        color: #eee;
-        margin: 0 0 5px 0;
-        font-size: 0.8rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .pill {
-        padding: 5px 12px;
-        background: #1a1a1a;
-        color: #666;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 0.75rem;
-        border: 1px solid #333;
-    }
-
-    .pill:hover {
-        background: #333;
-        color: white;
-        border-color: #7c4dff;
-    }
-
-    .rev-card {
-        background: rgba(255, 255, 255, 0.02);
-        padding: 12px;
-        border-radius: 12px;
-        margin-bottom: 10px;
-    }
-
-    .clickable-review {
-        cursor: pointer;
-        border: 1px solid transparent;
-        transition: 0.2s;
-    }
-
-    .clickable-review:hover {
-        border-color: #7c4dff;
-        background: rgba(124, 77, 255, 0.08);
-    }
-
+    .remove-btn:hover { background: #d50000; transform: translateY(-1px); }
+    .stat-card { background: #1a1a1a; padding: 15px; border-radius: 15px; text-align: center; color: white; font-weight: bold; }
+    .stat-lbl { display: block; font-size: 0.6rem; color: #555; text-transform: uppercase; margin-bottom: 5px; }
+    .wish-card { background: #1a1a1a; border-radius: 15px; overflow: hidden; border: 1px solid #222; position: relative; transition: 0.3s; }
+    .wish-card:hover { border-color: #7c4dff; transform: translateY(-5px); }
+    .wish-title { color: #eee; margin: 0 0 5px 0; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pill { padding: 5px 12px; background: #1a1a1a; color: #666; border-radius: 8px; text-decoration: none; font-size: 0.75rem; border: 1px solid #333; }
+    .pill:hover { background: #333; color: white; border-color: #7c4dff; }
+    .rev-card { background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 12px; margin-bottom: 10px; }
+    .clickable-review { cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
+    .clickable-review:hover { border-color: #7c4dff; background: rgba(124, 77, 255, 0.08); }
     .delete-review-btn {
-        background: rgba(255, 82, 82, 0.15);
-        border: 1px solid rgba(255, 82, 82, 0.35);
-        color: #ff7b7b;
-        border-radius: 8px;
-        width: 28px;
-        height: 28px;
-        cursor: pointer;
-        font-size: 0.8rem;
+        background: rgba(255, 82, 82, 0.15); border: 1px solid rgba(255, 82, 82, 0.35);
+        color: #ff7b7b; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; font-size: 0.8rem;
     }
-
-    .delete-review-btn:hover {
-        background: rgba(255, 82, 82, 0.25);
-    }
-
-    .logout-btn {
-        display: block;
-        text-align: center;
-        padding: 10px;
-        background: #ff5252;
-        color: white;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: background 0.3s;
-    }
-
-    .logout-btn:hover {
-        background: #d50000;
-    }
-
-    .badge-hunter {
-        background: rgba(0, 230, 118, 0.1);
-        color: #00e676;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.7rem;
-        font-weight: bold;
-    }
+    .logout-btn { display: block; text-align: center; padding: 10px; background: #ff5252; color: white; border-radius: 10px; text-decoration: none; font-weight: bold; transition: background 0.3s; }
+    .logout-btn:hover { background: #d50000; }
+    .badge-hunter { background: rgba(0, 230, 118, 0.1); color: #00e676; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
 </style>
 {% endblock %}

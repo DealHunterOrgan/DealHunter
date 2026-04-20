@@ -223,9 +223,18 @@ class AddReviewView(LoginRequiredMixin, View):
 class EditReviewView(LoginRequiredMixin, View):
     def post(self, request, pk):
         review = get_object_or_404(Review, pk=pk, user=request.user)
-        review.content = request.POST.get('content', review.content).strip()
-        review.rating = int(request.POST.get('rating', review.rating))
+
+        new_content = request.POST.get('content', '').strip()
+        new_rating = request.POST.get('rating')
+
+        if new_content:
+            review.content = new_content
+
+        if new_rating:
+            review.rating = int(new_rating)
+
         review.save()
+
 
         referer = request.META.get('HTTP_REFERER', '')
         if 'profile' in referer:
