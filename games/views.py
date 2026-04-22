@@ -1,18 +1,17 @@
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import ListView, DetailView, CreateView, TemplateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, TemplateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.db.models import Count, Min, F
 from django.views import View
-from django.http import JsonResponse  # Nuevo import para el autocomplete
+from django.http import JsonResponse
 
 from .forms import CustomUserCreationForm, EditProfileForm
 from .models import Game, Wishlist, Genre, Platform, Review, Profile
 from .services import get_game_media
-
 
 class GameListView(ListView):
     model = Game
@@ -71,7 +70,6 @@ class GameListView(ListView):
         ]
         return context
 
-
 class GameDetailView(DetailView):
     model = Game
     template_name = 'games/detail.html'
@@ -97,7 +95,6 @@ class GameDetailView(DetailView):
 
         return context
 
-
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('games:home')
@@ -109,10 +106,8 @@ class SignUpView(CreateView):
         login(self.request, self.object)
         return redirect('games:home')
 
-
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
-
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'registration/profile.html'
@@ -154,7 +149,6 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         return context
 
-
 class EditAccountView(LoginRequiredMixin, View):
     def get(self, request):
         profile, _ = Profile.objects.get_or_create(user=request.user)
@@ -184,7 +178,6 @@ class EditAccountView(LoginRequiredMixin, View):
             return redirect('games:profile')
         return render(request, 'registration/edit_account.html', {'form': form})
 
-
 class DeleteAccountView(LoginRequiredMixin, DeleteView):
     model = User
     template_name = 'games/delete_account_confirm.html'
@@ -192,7 +185,6 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         return self.request.user
-
 
 class ToggleWishlistView(LoginRequiredMixin, View):
     def post(self, request, pk):
@@ -208,53 +200,43 @@ class ToggleWishlistView(LoginRequiredMixin, View):
             return redirect('games:profile')
         return redirect('games:detail', pk=pk)
 
+class AddReviewView(LoginRequiredMixin, CreateView):
+    model = Review
+    fields = ['content', 'rating']
 
-class AddReviewView(LoginRequiredMixin, View):
-    def post(self, request, pk):
-        game = get_object_or_404(Game, pk=pk)
-        content = request.POST.get('content', '').strip()
-        if content:
-            Review.objects.create(
-                game=game, user=request.user, content=content,
-                rating=int(request.POST.get('rating', 5))
-            )
-        return redirect('games:detail', pk=pk)
+    def form_valid(self, form):
+        form.instance.game = get_object_or_404(Game, pk=self.kwargs['pk'])
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse_lazy('games:detail', kwargs={'pk': self.kwargs['pk']})
 
-class EditReviewView(LoginRequiredMixin, View):
-    def post(self, request, pk):
-        review = get_object_or_404(Review, pk=pk, user=request.user)
+class EditReviewView(LoginRequiredMixin, UpdateView):
+    model = Review
+    fields = ['content', 'rating']
 
-        new_content = request.POST.get('content', '').strip()
-        new_rating = request.POST.get('rating')
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user)
 
-        if new_content:
-            review.content = new_content
-
-        if new_rating:
-            review.rating = int(new_rating)
-
-        review.save()
-
-        referer = request.META.get('HTTP_REFERER', '')
+    def get_success_url(self):
+        referer = self.request.META.get('HTTP_REFERER', '')
         if 'profile' in referer:
-            return redirect('games:profile')
-        return redirect('games:detail', pk=review.game.id)
+            return reverse_lazy('games:profile')
+        return reverse_lazy('games:detail', kwargs={'pk': self.object.game.id})
 
+class DeleteReviewView(LoginRequiredMixin, DeleteView):
+    model = Review
 
-class DeleteReviewView(LoginRequiredMixin, View):
-    def post(self, request, pk):
-        review = get_object_or_404(Review, pk=pk, user=request.user)
-        game_id = review.game.id
-        review.delete()
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user)
 
-        referer = request.META.get('HTTP_REFERER', '')
+    def get_success_url(self):
+        referer = self.request.META.get('HTTP_REFERER', '')
         if 'profile' in referer:
-            return redirect('games:profile')
-        return redirect('games:detail', pk=game_id)
+            return reverse_lazy('games:profile')
+        return reverse_lazy('games:detail', kwargs={'pk': self.object.game.id})
 
-
-# VISTA DE AUTOCOMPLETE (NUEVA)
 def game_autocomplete(request):
     query = request.GET.get('q', '').strip()
     results = []

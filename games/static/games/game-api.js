@@ -1,4 +1,3 @@
-// Configuración
 const RAWG_API_KEY = '0c2a9ea573034836b3c0de9916085843';
 
 async function obtenerFichaJuego(nombreBusqueda) {
