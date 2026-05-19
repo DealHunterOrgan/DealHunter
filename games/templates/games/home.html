@@ -216,9 +216,9 @@
 
         <div class="games-grid">
             {% for game in games %}
-            <div class="game-card-wrapper">
-                <a href="{% url 'games:detail' game.pk %}" class="game-card">
-                    <img src="{{ game.cover_url }}" alt="{{ game.title }}" class="game-card-img">
+            <div class="game-card-wrapper" vocab="https://schema.org/" typeof="VideoGame Product">
+                <a href="{% url 'games:detail' game.pk %}" class="game-card" property="url">
+                    <img src="{{ game.cover_url }}" alt="{{ game.title }}" class="game-card-img" property="image">
                     <div class="game-card-overlay"></div>
 
                     {% if game.score and game.score > 0 %}
@@ -232,17 +232,23 @@
                         <div class="game-card-tags"
                             style="display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100% - 55px); align-items: flex-start;">
                             {% for genre in game.genres.all|slice:":2" %}
-                            <span class="game-tag">{{ genre.name }}</span>
+                            <span class="game-tag" property="genre">{{ genre.name }}</span>
                             {% endfor %}
                             {% for platform in game.platforms.all|slice:":1" %}
-                            <span class="game-tag platform-tag">{{ platform.name }}</span>
+                            <span class="game-tag platform-tag" property="gamePlatform">{{ platform.name }}</span>
                             {% endfor %}
                         </div>
 
                         <div class="game-card-bottom">
-                            <h3 class="game-card-title">{{ game.title }}</h3>
+                            <h3 class="game-card-title" property="name">{{ game.title }}</h3>
                             {% with price=game.availability_set.first %}
-                            {% if price %}<span class="game-card-price">{{ price.current_price }}€</span>
+                            {% if price %}
+                            <span class="game-card-price" rel="offers" typeof="Offer">
+                                <meta property="priceCurrency" content="EUR">
+                                <link property="availability" href="https://schema.org/InStock">
+                                {% if price.offer_url %}<meta property="url" content="{{ price.offer_url }}">{% endif %}
+                                <span property="price" content="{{ price.current_price }}">{{ price.current_price }}</span>€
+                            </span>
                             {% else %}<span class="game-card-price-na">—</span>{% endif %}
                             {% endwith %}
                         </div>
