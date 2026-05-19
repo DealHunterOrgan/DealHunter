@@ -5,7 +5,7 @@ from django.views.generic import ListView, DetailView, CreateView, TemplateView,
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
-from django.db.models import Count, Min, F
+from django.db.models import Avg, Count, Min, F
 from django.views import View
 from django.http import JsonResponse
 
@@ -90,7 +90,12 @@ class GameDetailView(DetailView):
         else:
             context['is_wishlisted'] = False
 
-        context['reviews'] = Review.objects.filter(game=game).select_related('user').order_by('-created_at')
+        reviews = Review.objects.filter(game=game).select_related('user').order_by('-created_at')
+        review_stats = reviews.aggregate(average_rating=Avg('rating'), review_count=Count('id'))
+
+        context['reviews'] = reviews
+        context['average_rating'] = review_stats['average_rating']
+        context['review_count'] = review_stats['review_count']
         context['availabilities'] = game.availability_set.all().select_related('shop').order_by('current_price')
 
         return context
